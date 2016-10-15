@@ -603,7 +603,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-               closeRefreshView();
+               closeRefreshView();  // TODO 写到这里
             }
         }, 2000);
     }
