@@ -1,8 +1,10 @@
 package com.panxiong.lvbsd;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -14,6 +16,7 @@ import com.pixel.listview.inter.OnCreateSlidMenuClickInterface;
 import com.pixel.listview.inter.OnCreateViewInterface;
 import com.pixel.listview.inter.OnItemClickInterface;
 import com.pixel.listview.inter.OnItemLongClickInterface;
+import com.pixel.listview.inter.OnSlidRefreshInterface;
 
 import java.util.Hashtable;
 
@@ -109,6 +112,18 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(View view, int position) {
                 Toast.makeText(MainActivity.this, "onItemLongClick " + position, Toast.LENGTH_SHORT).show();
                 return true;
+            }
+        });
+
+        mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
+            @Override
+            public void doRefresh(Context mContext, LinearListView linearListView) {
+                Log.e("MainActivity", "刷新");
+            }
+
+            @Override
+            public void doMore(Context mContext, LinearListView linearListView) {
+                Log.e("MainActivity", "加载");
             }
         });
     }
