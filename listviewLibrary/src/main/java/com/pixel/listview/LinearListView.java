@@ -38,6 +38,7 @@ import java.util.Map;
  */
 
 public class LinearListView extends LinearLayout implements View.OnTouchListener {
+    public static final String TAG = "LinearListView";
     /*View标记 记录item是不是 head 或者 foot*/
     private static final int VIEW_FLAG = 0x20161014;
     /*全局上下文对象*/
@@ -55,8 +56,11 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private PHorizontalScrollView mHScrollView;
     /*内容区域*/
     private LinearLayout mLinearLayout;
+    /*添加一层蒙板实现滑动刷新*/
+    private View mSlidView;
     /*布局管理器*/
     private LayoutParams mFLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    private LayoutParams mVLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     private FrameLayout.LayoutParams mSLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     private LayoutParams mLLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     /*最大值 Item的最大数量*/
@@ -343,7 +347,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
     // 添加滑动刷新的头部与尾部
     private void addSlidRefreshView() {
-
+        TextView textView = new TextView(mContext);
+        textView.setText("滑动刷新");
+        mFrameLayout.addView(textView, 0);
     }
 
     // 刷新
@@ -351,7 +357,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         for (Map.Entry<Integer, View> entry : slidMenuContainer.entrySet()) {
             ((LinearLayout) ((ViewGroup) entry.getValue()).getChildAt(0)).removeAllViews(); // 清空掉所有的滑动菜单
         }
-        // =================================================================================内容开始
+
         mLinearLayout.removeAllViews();
         // 添加Header
         for (View headView : headerList) {
@@ -368,7 +374,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             mLinearLayout.addView(footerView);
         }
         mLinearLayout.invalidate();
-        // =================================================================================内容结束
 
         this.mFrameLayout.removeAllViews();
         this.addSlidRefreshView();
@@ -377,6 +382,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         } else {
             this.mFrameLayout.addView(mHScrollView);
         }
+        this.mFrameLayout.addView(mSlidView);
         this.removeAllViews();
         this.addView(mFrameLayout);
         this.invalidate();
@@ -401,6 +407,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
     private boolean isOpenRefresh = true;
     private boolean isOpenMore = false;
+    private boolean isScrollSlid = true;    // 下拉刷新/上拉加载更多模式
+    private boolean isSlidModelVertical = true; // 下拉刷新模式下 是竖直方向
+    private boolean isSlidModelRefresh = true;  // 下拉刷新模式 是下拉刷新
     private int mNewX = 0;
     private int mNewY = 0;
     private int mOldX = 0;
@@ -412,30 +421,17 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private int moveY = 0;
     private int current = 0;    // 达到临界位置时滑动的坐标
 
-    // 竖直方向时滑动刷新
-    private void slidRefreshVertical() {
-        // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
-        if ((isOpenRefresh && mNewY <= 0) || mContentHeight <= mRootHeight) {
-            if (current == 0) current = moveY;    // 记录当前滑动的坐标
-            int moveSize = Math.abs(Math.abs(moveY) - Math.abs(current));
-            mSLayoutParams.topMargin += moveSize;
-            mScrollView.setLayoutParams(mSLayoutParams);
-//            mScrollView.offsetTopAndBottom(moveSize);
-        }
-
-        // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
-        if ((isOpenMore && mNewY >= mContentHeight - mRootHeight) || mContentHeight <= mRootHeight) {
-
-        }
-    }
-
-    // 横向方向时滑动刷新
-    private void slidRefreshHorizontal() {
-
+    // 更新滑动刷新模式下的状态
+    private void updateRefreshModel(boolean isVertical, boolean isRefresh) {
+        this.isScrollSlid = false;
+        this.isSlidModelVertical = isVertical;
+        this.isSlidModelRefresh = isRefresh;
+        mSlidView.setVisibility(VISIBLE);
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if (!isScrollSlid) return true;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = (int) event.getX();
@@ -445,9 +441,23 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 moveX = (int) event.getX();
                 moveY = (int) event.getY();
                 if (getOrientation() == VERTICAL) {
-                    slidRefreshVertical();
-                } else {
-                    slidRefreshHorizontal();
+                    // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
+                    if ((isOpenRefresh && mNewY <= 0) || mContentHeight <= mRootHeight) {
+                        updateRefreshModel(true, true);
+                    }
+                    // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
+                    if ((isOpenMore && mNewY >= mContentHeight - mRootHeight) || mContentHeight <= mRootHeight) {
+                        updateRefreshModel(true, false);
+                    }
+                } else if (getOrientation() == HORIZONTAL) {
+                    // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
+                    if ((isOpenRefresh && mNewX <= 0) || mContentWidth <= mRootWidth) {
+                        updateRefreshModel(false, true);
+                    }
+                    // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
+                    if ((isOpenMore && mNewX >= mContentWidth - mRootWidth) || mContentWidth <= mRootWidth) {
+                        updateRefreshModel(false, false);
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -474,6 +484,25 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             if ((Math.abs(y) - Math.abs(oldy)) > 0) {    // 发送竖直滚动
                 closeSlidMenuByVertical();
             }
+        }
+    };
+
+    // 滑动View监听(实现下拉刷新)
+    private OnTouchListener slidOnTouchListener = new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    break;
+                case MotionEvent.ACTION_UP:
+                    mSlidView.setVisibility(GONE);
+                    isScrollSlid = true;    // TODO 写到这里
+                    break;
+                default:
+            }
+            return false;
         }
     };
 
@@ -509,11 +538,20 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private void initContainer() {
         mFrameLayout = new FrameLayout(mContext);
         mFrameLayout.setLayoutParams(mFLayoutParams);
-        mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));    // TODO 设置背景色
+        mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));
+
+        mSlidView = new View(mContext);
+        mSlidView.setLayoutParams(mVLayoutParams);
+        mSlidView.setBackgroundColor(Color.argb(100, 0, 0, 0)); // TODO 改颜色
+        mSlidView.setClickable(true);
+        mSlidView.setVisibility(GONE);
+        mSlidView.setOnTouchListener(slidOnTouchListener);
+
         mLinearLayout = new LinearLayout(mContext);
         mLinearLayout.setLayoutParams(mLLayoutParams);
         mLinearLayout.setOrientation(getOrientation());
         mLinearLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
+
         if (getOrientation() == LinearLayout.VERTICAL) {
             mScrollView = new PScrollView(mContext);
             mScrollView.setLayoutParams(mSLayoutParams);
