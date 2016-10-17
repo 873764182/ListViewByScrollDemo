@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-                 mLinearListView.refreshUiData();
+                mLinearListView.refreshUiData();   // 如果是横向列表是 每次都要调用一次刷新才能出现数据 目前找不到原因
             }
         }, 2000);
 
@@ -121,11 +121,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void doRefresh(Context mContext, LinearListView linearListView) {
                 Log.e("MainActivity", "刷新");
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLinearListView.closeRefreshView();
+                    }
+                }, 2000);
             }
 
             @Override
             public void doMore(Context mContext, LinearListView linearListView) {
                 Log.e("MainActivity", "加载");
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLinearListView.closeRefreshView();
+                    }
+                }, 2000);
             }
         });
     }

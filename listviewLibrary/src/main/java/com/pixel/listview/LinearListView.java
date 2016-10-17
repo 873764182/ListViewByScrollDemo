@@ -635,7 +635,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                             }
                             mSLayoutParams.rightMargin = moveValue > 0 ? moveValue : 0;
                             mHScrollView.setLayoutParams(mSLayoutParams);
-                            // mHScrollView.scrollTo(mContentWidth, 0);    // smoothScrollTo
+                            // mHScrollView.scrollTo(mContentWidth, 0);    // smoothScrollTo 目前这里存在问题 使列表不能滑动 每次都被定为到末尾
                             scope = footSlidSize <= 0 ? (mRootWidth / 4) : footSlidSize;
                             if (iSlidFootRefreshView != null) {
                                 iSlidFootRefreshView.onSliding(scope, moveValue);
@@ -705,13 +705,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             }
             mHScrollView.setLayoutParams(mSLayoutParams);
         }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                closeRefreshView();
-            }
-        }, 2000);
     }
 
     // 关闭刷新视图
