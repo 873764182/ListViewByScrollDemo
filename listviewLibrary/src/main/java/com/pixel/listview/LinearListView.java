@@ -24,6 +24,8 @@ import com.pixel.listview.inter.OnItemClickInterface;
 import com.pixel.listview.inter.OnItemLongClickInterface;
 import com.pixel.listview.inter.OnScrollChangedInterface;
 import com.pixel.listview.inter.OnSlidRefreshInterface;
+import com.pixel.listview.widget.HSlidFootRefreshView;
+import com.pixel.listview.widget.HSlidHeadRefreshView;
 import com.pixel.listview.widget.ISlidFootRefreshView;
 import com.pixel.listview.widget.ISlidHeadRefreshView;
 import com.pixel.listview.widget.PHorizontalScrollView;
@@ -355,7 +357,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         if (getOrientation() == VERTICAL) {
             iSlidHeadRefreshView = new SlidHeadRefreshView();
         } else {
-            // 水平方向
+            iSlidHeadRefreshView = new HSlidHeadRefreshView(); // 水平方向
         }
         this.mFrameLayout.addView(iSlidHeadRefreshView.getRefreshView(mContext, mRootWidth, mRootHeight), 0);
     }
@@ -370,7 +372,10 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             linearLayout.setGravity(Gravity.BOTTOM | Gravity.CENTER);
             linearLayout.addView(iSlidFootRefreshView.getMoreView(mContext, mRootWidth, mRootHeight));
         } else {
-            // 水平方向
+            iSlidFootRefreshView = new HSlidFootRefreshView();
+            linearLayout.setOrientation(VERTICAL);
+            linearLayout.setGravity(Gravity.RIGHT | Gravity.CENTER);
+            linearLayout.addView(iSlidFootRefreshView.getMoreView(mContext, mRootWidth, mRootHeight)); // 水平方向
         }
         this.mFrameLayout.addView(linearLayout, 1); // 要套一层线性布局 才能把尾部布局定位在底部
     }
@@ -399,14 +404,22 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         mLinearLayout.invalidate();
 
         this.mFrameLayout.removeAllViews();
-        this.addSlidRefreshHeadView(mFrameLayout);  // 添加刷新头控件
-        this.addSlidRefreshFootView(mFrameLayout);  // 添加刷新尾控件
-        if (getOrientation() == VERTICAL) {
-            this.mFrameLayout.addView(mScrollView, 2);
-        } else {
-            this.mFrameLayout.addView(mHScrollView, 2);
+        if (isOpenRefresh) {
+            this.addSlidRefreshHeadView(mFrameLayout);  // 添加刷新头控件
         }
-        this.mFrameLayout.addView(mSlidView, 3);
+        if (isOpenMore) {
+            this.addSlidRefreshFootView(mFrameLayout);  // 添加刷新尾控件
+        }
+        if (getOrientation() == VERTICAL) {
+            mScrollView.removeAllViews();
+            mScrollView.addView(mLinearLayout);
+            this.mFrameLayout.addView(mScrollView);
+        } else {
+            mHScrollView.removeAllViews();
+            mHScrollView.addView(mLinearLayout);
+            this.mFrameLayout.addView(mHScrollView);
+        }
+        this.mFrameLayout.addView(mSlidView);
 
         this.removeAllViews();
         this.addView(mFrameLayout);
@@ -562,6 +575,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     if (downX_slid <= 0) downX_slid = moveX_slid;
                     if (downY_slid <= 0) downY_slid = moveY_slid;
                     if (isSlidModelVertical) {
+
                         if (isSlidModelRefresh) {
                             moveValue = (moveY_slid - downY_slid) / 2;
                             if (headSlidSize <= 0 && moveValue > mRootHeight / 4) { // 默认头部View为1/4的rootView
@@ -594,7 +608,41 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                             }
                             isRefresh = false;
                         }
+
                     } else if (!isSlidModelVertical) {
+
+                        if (isSlidModelRefresh) {
+                            moveValue = (moveX_slid - downX_slid) / 2;
+                            if (headSlidSize <= 0 && moveValue > mRootWidth / 4) { // 默认头部View为1/4的rootView
+                                moveValue = mRootWidth / 4;
+                            } else if (headSlidSize > 0 && moveValue > headSlidSize) {
+                                moveValue = headSlidSize;
+                            }
+                            mSLayoutParams.leftMargin = moveValue > 0 ? moveValue : 0;
+                            mHScrollView.setLayoutParams(mSLayoutParams);
+                            scope = headSlidSize <= 0 ? (mRootWidth / 4) : headSlidSize;
+                            if (iSlidHeadRefreshView != null) {
+                                iSlidHeadRefreshView.onSliding(scope, moveValue);
+                                isIntercept = iSlidHeadRefreshView.interceptRefresh(scope, moveValue);
+                            }
+                            isRefresh = true;
+                        } else if (!isSlidModelRefresh) {
+                            moveValue = (downX_slid - moveX_slid) / 2;
+                            if (footSlidSize <= 0 && moveValue > mRootWidth / 4) { // 默认尾部View为1/8的rootView
+                                moveValue = mRootWidth / 8;
+                            } else if (footSlidSize > 0 && moveValue > footSlidSize) {
+                                moveValue = footSlidSize;
+                            }
+                            mSLayoutParams.rightMargin = moveValue > 0 ? moveValue : 0;
+                            mHScrollView.setLayoutParams(mSLayoutParams);
+                            // mHScrollView.scrollTo(mContentWidth, 0);    // smoothScrollTo
+                            scope = footSlidSize <= 0 ? (mRootWidth / 4) : footSlidSize;
+                            if (iSlidFootRefreshView != null) {
+                                iSlidFootRefreshView.onSliding(scope, moveValue);
+                                isIntercept = iSlidFootRefreshView.interceptRefresh(scope, moveValue);
+                            }
+                            isRefresh = false;
+                        }
 
                     }
                     break;
@@ -632,17 +680,31 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
     // 关闭滑动视图
     private void performRefreshView(Boolean isRefresh, int scope, final int moveValue) {
-        if (isRefresh == null) {
-            mSLayoutParams.topMargin = 0;
-            mSLayoutParams.bottomMargin = 0;
-        } else if (isRefresh) {
-            mSLayoutParams.topMargin = scope / 2;
-            mSLayoutParams.bottomMargin = 0;
-        } else if (!isRefresh) {
-            mSLayoutParams.topMargin = 0;
-            mSLayoutParams.bottomMargin = scope * 3 / 5;
+        if (getOrientation() == VERTICAL) {
+            if (isRefresh == null) {
+                mSLayoutParams.topMargin = 0;
+                mSLayoutParams.bottomMargin = 0;
+            } else if (isRefresh) {
+                mSLayoutParams.topMargin = scope / 2;
+                mSLayoutParams.bottomMargin = 0;
+            } else if (!isRefresh) {
+                mSLayoutParams.topMargin = 0;
+                mSLayoutParams.bottomMargin = scope * 3 / 5;
+            }
+            mScrollView.setLayoutParams(mSLayoutParams);
+        } else {
+            if (isRefresh == null) {
+                mSLayoutParams.leftMargin = 0;
+                mSLayoutParams.rightMargin = 0;
+            } else if (isRefresh) {
+                mSLayoutParams.leftMargin = scope / 2;
+                mSLayoutParams.rightMargin = 0;
+            } else if (!isRefresh) {
+                mSLayoutParams.leftMargin = 0;
+                mSLayoutParams.rightMargin = scope / 2;
+            }
+            mHScrollView.setLayoutParams(mSLayoutParams);
         }
-        mScrollView.setLayoutParams(mSLayoutParams);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -661,10 +723,15 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         if (iSlidFootRefreshView != null) {
             iSlidFootRefreshView.closeMoreView();
         }
-
-        mSLayoutParams.topMargin = 0;
-        mSLayoutParams.bottomMargin = 0;
-        mScrollView.setLayoutParams(mSLayoutParams);
+        if (getOrientation() == VERTICAL) {
+            mSLayoutParams.topMargin = 0;
+            mSLayoutParams.bottomMargin = 0;
+            mScrollView.setLayoutParams(mSLayoutParams);
+        } else {
+            mSLayoutParams.leftMargin = 0;
+            mSLayoutParams.rightMargin = 0;
+            mHScrollView.setLayoutParams(mSLayoutParams);
+        }
         isRefreshState = false;
         isScrollSlid = true; // 打开滚动视图滚动
     }

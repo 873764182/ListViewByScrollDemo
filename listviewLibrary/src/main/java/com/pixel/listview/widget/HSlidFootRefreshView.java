@@ -14,17 +14,17 @@ import android.widget.TextView;
 /**
  * Created by Administrator on 2016/10/17.
  * <p>
- * 默认的头部控件
+ * 默认的尾部控件
  */
 
-public class SlidHeadRefreshView extends ISlidHeadRefreshView {
-    private LinearLayout refreshView = null;
+public class HSlidFootRefreshView extends ISlidFootRefreshView {
+    private LinearLayout moreView = null;
     private TextView textViewArrow = null;
     private TextView textView = null;
 
     private RotateAnimation animation = null;
 
-    public SlidHeadRefreshView() {
+    public HSlidFootRefreshView() {
         animation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         animation.setInterpolator(new LinearInterpolator());
         animation.setRepeatCount(-1);
@@ -32,54 +32,54 @@ public class SlidHeadRefreshView extends ISlidHeadRefreshView {
     }
 
     @Override
-    public View getRefreshView(Context context, int width, int height) {
-        if (refreshView == null) {
-            refreshView = new LinearLayout(context);
-            refreshView.setLayoutParams(new LinearLayout.LayoutParams(width, height / 4));
-            refreshView.setOrientation(LinearLayout.HORIZONTAL);
-            refreshView.setGravity(Gravity.CENTER | Gravity.TOP);
-            refreshView.setBackgroundColor(Color.argb(200, 255, 255, 255));
+    public View getMoreView(Context context, int width, int height) {
+        if (moreView == null) {
+            moreView = new LinearLayout(context);
+            moreView.setLayoutParams(new LinearLayout.LayoutParams(width / 4, height));
+            moreView.setOrientation(LinearLayout.HORIZONTAL);
+            moreView.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+            moreView.setBackgroundColor(Color.argb(200, 255, 255, 255));
 
             LinearLayout linearLayout = new LinearLayout(context);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, height / 8));
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayout.setGravity(Gravity.CENTER);
+            linearLayout.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
 
             textViewArrow = new TextView(context);
             textViewArrow.setGravity(Gravity.CENTER);
             textViewArrow.setPadding(16, 16, 16, 16);
-            textViewArrow.setText("▼");
+            textViewArrow.setText("➤"); // 要反过来
 
             textView = new TextView(context);
-            textView.setText("下拉刷新");
+            textView.setText("左滑加载");
 
-            linearLayout.addView(textViewArrow);
             linearLayout.addView(textView);
-            refreshView.addView(linearLayout);
+            linearLayout.addView(textViewArrow);
+            moreView.addView(linearLayout);
         }
-        return refreshView;
+        return moreView;
     }
 
     @Override
     public void onSliding(int scope, int sliding) {
         if (sliding > scope * 2 / 3) {  // 滑动超过总范围的2/3时松手就会触发刷新操作
-            textView.setText("松手刷新");
-            textViewArrow.setRotation(180);
-        } else {
-            textView.setText("下拉刷新");
+            textView.setText("松手加载");
             textViewArrow.setRotation(0);
+        } else {
+            textView.setText("左滑加载");
+            textViewArrow.setRotation(180);
         }
     }
 
     @Override
-    public void performRefreshView() {
+    public void performMoreView() {
         textViewArrow.startAnimation(animation);
-        textView.setText("正在刷新 ...");
+        textView.setText("正在加载");
     }
 
     @Override
-    public void closeRefreshView() {
+    public void closeMoreView() {
         textViewArrow.clearAnimation();
-        textView.setText("下拉刷新");
+        textView.setText("左滑加载");
     }
 }

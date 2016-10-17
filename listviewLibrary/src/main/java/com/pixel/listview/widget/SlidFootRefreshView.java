@@ -64,10 +64,10 @@ public class SlidFootRefreshView extends ISlidFootRefreshView {
     public void onSliding(int scope, int sliding) {
         if (sliding > scope * 2 / 3) {  // 滑动超过总范围的2/3时松手就会触发刷新操作
             textView.setText("松手加载");
-            textViewArrow.setText("▼");
+            textViewArrow.setRotation(180);
         } else {
             textView.setText("上拉加载");
-            textViewArrow.setText("▲");
+            textViewArrow.setRotation(0);
         }
     }
 

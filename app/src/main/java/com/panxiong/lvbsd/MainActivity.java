@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-                // mLinearListView.refreshUiData();
+                 mLinearListView.refreshUiData();
             }
         }, 2000);
 

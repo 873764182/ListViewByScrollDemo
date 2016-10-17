@@ -17,14 +17,14 @@ import android.widget.TextView;
  * 默认的头部控件
  */
 
-public class SlidHeadRefreshView extends ISlidHeadRefreshView {
+public class HSlidHeadRefreshView extends ISlidHeadRefreshView {
     private LinearLayout refreshView = null;
     private TextView textViewArrow = null;
     private TextView textView = null;
 
     private RotateAnimation animation = null;
 
-    public SlidHeadRefreshView() {
+    public HSlidHeadRefreshView() {
         animation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         animation.setInterpolator(new LinearInterpolator());
         animation.setRepeatCount(-1);
@@ -35,23 +35,23 @@ public class SlidHeadRefreshView extends ISlidHeadRefreshView {
     public View getRefreshView(Context context, int width, int height) {
         if (refreshView == null) {
             refreshView = new LinearLayout(context);
-            refreshView.setLayoutParams(new LinearLayout.LayoutParams(width, height / 4));
-            refreshView.setOrientation(LinearLayout.HORIZONTAL);
-            refreshView.setGravity(Gravity.CENTER | Gravity.TOP);
+            refreshView.setLayoutParams(new LinearLayout.LayoutParams(width / 4, height));
+            refreshView.setOrientation(LinearLayout.VERTICAL);
+            refreshView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
             refreshView.setBackgroundColor(Color.argb(200, 255, 255, 255));
 
             LinearLayout linearLayout = new LinearLayout(context);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, height / 8));
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayout.setGravity(Gravity.CENTER);
+            linearLayout.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 
             textViewArrow = new TextView(context);
             textViewArrow.setGravity(Gravity.CENTER);
             textViewArrow.setPadding(16, 16, 16, 16);
-            textViewArrow.setText("▼");
+            textViewArrow.setText("➤");
 
             textView = new TextView(context);
-            textView.setText("下拉刷新");
+            textView.setText("右滑刷新");
 
             linearLayout.addView(textViewArrow);
             linearLayout.addView(textView);
@@ -66,7 +66,7 @@ public class SlidHeadRefreshView extends ISlidHeadRefreshView {
             textView.setText("松手刷新");
             textViewArrow.setRotation(180);
         } else {
-            textView.setText("下拉刷新");
+            textView.setText("右滑刷新");
             textViewArrow.setRotation(0);
         }
     }
@@ -74,12 +74,12 @@ public class SlidHeadRefreshView extends ISlidHeadRefreshView {
     @Override
     public void performRefreshView() {
         textViewArrow.startAnimation(animation);
-        textView.setText("正在刷新 ...");
+        textView.setText("正在刷新");
     }
 
     @Override
     public void closeRefreshView() {
         textViewArrow.clearAnimation();
-        textView.setText("下拉刷新");
+        textView.setText("右滑刷新");
     }
 }
