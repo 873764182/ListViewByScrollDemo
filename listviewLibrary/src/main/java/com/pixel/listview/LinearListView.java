@@ -1011,13 +1011,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     }
 
     /**
-     * 设置列表的方向 设置结束后请调用一次刷新列表方法
-     */
-    public void setmOrientation(int orientation) {
-        setOrientation(orientation);
-    }
-
-    /**
      * 设置列表Item单击事件监听
      */
     public void setOnItemClickInterface(OnItemClickInterface onItemClickInterface) {
@@ -1050,6 +1043,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      */
     public void setOnCreateSlidMenuClickInterface(OnCreateSlidMenuClickInterface onCreateSlidMenuClickInterface) {
         this.onCreateSlidMenuClickInterface = onCreateSlidMenuClickInterface;
+    }
+
+    /**
+     * 设置列表的方向 请在一切方法执行前调用
+     */
+    public void setmOrientation(int orientation) {
+        setOrientation(orientation);
     }
 
     /**
