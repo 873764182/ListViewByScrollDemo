@@ -22,6 +22,7 @@ import com.pixel.listview.inter.OnCreateViewInterface;
 import com.pixel.listview.inter.OnItemClickInterface;
 import com.pixel.listview.inter.OnItemLongClickInterface;
 import com.pixel.listview.inter.OnScrollChangedInterface;
+import com.pixel.listview.inter.OnScrollTopOrBottomInterface;
 import com.pixel.listview.inter.OnSlidRefreshInterface;
 import com.pixel.listview.widget.HSlidFootRefreshView;
 import com.pixel.listview.widget.HSlidHeadRefreshView;
@@ -395,6 +396,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private OnSlidRefreshInterface onSlidRefreshInterface;  // 刷新/加载 回调接口
     private ISlidHeadRefreshView iSlidHeadRefreshView;  // 下拉刷新头部(在用户打开下拉刷新时创建一个默认,用户也可以自定义)
     private ISlidFootRefreshView iSlidFootRefreshView;  // 上拉加载头部(在用户打开上拉加载时创建一个默认,用户也可以自定义)
+    private OnScrollTopOrBottomInterface onScrollTopOrBottomInterface;  // 列表滚动到了顶部或者底部回调
 
     // 更新滑动刷新模式下的状态
     private void updateRefreshModel(boolean isVertical, boolean isRefresh) {
@@ -441,6 +443,12 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 if (downX <= 0) downX = moveX;
                 if (downY <= 0) downY = moveY;
                 if (getOrientation() == VERTICAL) {
+                    // 滑到顶部时
+                    if (onScrollTopOrBottomInterface != null && mNewY <= 0) {
+                        onScrollTopOrBottomInterface.onTop(mNewY, mOldY);
+                    } else if (onScrollTopOrBottomInterface != null && mNewY >= mContentHeight - mRootHeight) {
+                        onScrollTopOrBottomInterface.onBom(mNewY, mOldY);
+                    }
                     // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
                     if ((isOpenRefresh && mNewY <= 0) || mContentHeight <= mRootHeight) {
                         if (moveY > downY && (moveY - downY > SLIDO_OFFSET)) { //  向下滑
@@ -454,6 +462,12 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                         }
                     }
                 } else if (getOrientation() == HORIZONTAL) {
+                    // 滑到左边时
+                    if (onScrollTopOrBottomInterface != null && mNewX <= 0) {
+                        onScrollTopOrBottomInterface.onTop(mNewY, mOldY);
+                    } else if (onScrollTopOrBottomInterface != null && mNewX >= mContentWidth - mRootWidth) {
+                        onScrollTopOrBottomInterface.onBom(mNewY, mOldY);
+                    }
                     // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
                     if ((isOpenRefresh && mNewX <= 0) || mContentWidth <= mRootWidth) {
                         updateRefreshModel(false, true);
@@ -836,6 +850,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      */
     public void setISlidFootRefreshView(ISlidFootRefreshView iSlidFootRefreshView) {
         this.iSlidFootRefreshView = iSlidFootRefreshView;
+    }
+
+    /**
+     * 列表滚动到底部或者顶部回调
+     */
+    public void setOnScrollTopOrBottomInterface(OnScrollTopOrBottomInterface onScrollTopOrBottomInterface) {
+        this.onScrollTopOrBottomInterface = onScrollTopOrBottomInterface;
     }
 
     /**
