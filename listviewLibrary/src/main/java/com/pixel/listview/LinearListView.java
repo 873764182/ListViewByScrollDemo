@@ -379,69 +379,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         this.mFrameLayout.addView(linearLayout, 1); // 要套一层线性布局 才能把尾部布局定位在底部
     }
 
-    // 刷新
-    public void refreshUiData() {
-        for (Map.Entry<Integer, View> entry : slidMenuContainer.entrySet()) {
-            ((LinearLayout) ((ViewGroup) entry.getValue()).getChildAt(0)).removeAllViews(); // 清空掉所有的滑动菜单
-        }
-
-        mLinearLayout.removeAllViews();
-        // 添加Header
-        for (View headView : headerList) {
-            mLinearLayout.addView(headView);
-        }
-        // 添加列表内容
-        mViews.clear();
-        for (int position = 0; (position < mListSize && position < maxItem); position++) {
-            mViews.add(onCreateViewInterface.getView(position));
-            mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
-        }
-        // 添加Footer
-        for (View footerView : footerList) {
-            mLinearLayout.addView(footerView);
-        }
-        mLinearLayout.invalidate();
-
-        this.mFrameLayout.removeAllViews();
-        if (isOpenRefresh) {
-            this.addSlidRefreshHeadView(mFrameLayout);  // 添加刷新头控件
-        }
-        if (isOpenMore) {
-            this.addSlidRefreshFootView(mFrameLayout);  // 添加刷新尾控件
-        }
-        if (getOrientation() == VERTICAL) {
-            mScrollView.removeAllViews();
-            mScrollView.addView(mLinearLayout);
-            this.mFrameLayout.addView(mScrollView);
-        } else {
-            mHScrollView.removeAllViews();
-            mHScrollView.addView(mLinearLayout);
-            this.mFrameLayout.addView(mHScrollView);
-        }
-        this.mFrameLayout.addView(mSlidView);
-
-        this.removeAllViews();
-        this.addView(mFrameLayout);
-        this.invalidate();
-
-        // 如果有左/上滑动菜单要主动关闭 不然会默认显示出来左边或者上边的按钮 这个方法要在界面初始化完调用才有效
-        runOnDelayed(new Runnable() {
-            @Override
-            public void run() {
-                for (Map.Entry<Integer, View> entry : leftSlidViewMap.entrySet()) {
-                    View cView = slidMenuContainer.get(entry.getKey());
-                    if (cView != null && getOrientation() == VERTICAL) {
-                        ((HorizontalScrollView) cView).smoothScrollTo(entry.getValue().getWidth(), 0);
-                    } else if (cView != null && getOrientation() == HORIZONTAL) {
-                        ((ScrollView) cView).smoothScrollTo(0, entry.getValue().getHeight());
-                    }
-                }
-                mContentWidth = mLinearLayout.getWidth();
-                mContentHeight = mLinearLayout.getHeight();
-            }
-        });
-    }
-
+    /* 处理下拉刷新/上拉加载 */
     private static final int SLIDO_OFFSET = 100;  // 滑动误差偏移
     private boolean isOpenRefresh = false;   // 是否开启下拉刷新
     private boolean isOpenMore = false;      // 是否开启上拉加载
@@ -449,9 +387,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private boolean isRefreshState = false; // 当前是正在刷新状态
     private boolean isSlidModelVertical = true; // 下拉刷新模式下 是竖直方向
     private boolean isSlidModelRefresh = true;  // 下拉刷新模式 是下拉刷新
-    private int mNewX = 0, mNewY = 0, mOldX = 0, mOldY = 0;
-    private int downX = 0, downY = 0, moveX = 0, moveY = 0;
-    private int downX_slid = 0, downY_slid = 0, moveX_slid = 0, moveY_slid = 0;
+    private int mNewX = 0, mNewY = 0, mOldX = 0, mOldY = 0; // 滚动视图的滚动参数
+    private int downX = 0, downY = 0, moveX = 0, moveY = 0; // 滚动视图的触摸位置
+    private int downX_slid = 0, downY_slid = 0, moveX_slid = 0, moveY_slid = 0; // 处理滑动刷新的蒙板的触摸参数
     private int headSlidSize = 0, footSlidSize = 0; // 头部尾部刷新View的高度(横向时时宽度)
 
     private OnSlidRefreshInterface onSlidRefreshInterface;  // 刷新/加载 回调接口
@@ -706,48 +644,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
     }
 
-    // 关闭刷新视图
-    public void closeRefreshView() {
-
-        if (iSlidHeadRefreshView != null) {
-            iSlidHeadRefreshView.closeRefreshView();
-        }
-        if (iSlidFootRefreshView != null) {
-            iSlidFootRefreshView.closeMoreView();
-        }
-        if (getOrientation() == VERTICAL) {
-            mSLayoutParams.topMargin = 0;
-            mSLayoutParams.bottomMargin = 0;
-            mScrollView.setLayoutParams(mSLayoutParams);
-        } else {
-            mSLayoutParams.leftMargin = 0;
-            mSLayoutParams.rightMargin = 0;
-            mHScrollView.setLayoutParams(mSLayoutParams);
-        }
-        isRefreshState = false;
-        isScrollSlid = true; // 打开滚动视图滚动
-    }
-
-    public void setIsOpenRefresh(boolean isOpenRefresh) {
-        this.isOpenRefresh = isOpenRefresh;
-    }
-
-    public void setIsOpenMore(boolean isOpenMore) {
-        this.isOpenMore = isOpenMore;
-    }
-
-    public void setOnSlidRefreshInterface(OnSlidRefreshInterface onSlidRefreshInterface) {
-        this.onSlidRefreshInterface = onSlidRefreshInterface;
-    }
-
-    public void setiSlidHeadRefreshView(ISlidHeadRefreshView iSlidHeadRefreshView) {
-        this.iSlidHeadRefreshView = iSlidHeadRefreshView;
-    }
-
-    public void setISlidFootRefreshView(ISlidFootRefreshView iSlidFootRefreshView) {
-        this.iSlidFootRefreshView = iSlidFootRefreshView;
-    }
-
     // 关闭滑动菜单显示(竖直方向时)
     private void closeSlidMenuByVertical() {
         if (!isCloseSlidMenu) return;
@@ -811,13 +707,140 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
     }
 
+    // 控件初始化
     private void doInit() {
         if (!isIniteOk) this.initContainer();
         this.refreshUiData();
         isIniteOk = true;
     }
 
-    // 添加头部
+    /**
+     * 关闭刷新视图(调用下拉刷新/上拉加载 结束后一定要调用)
+     */
+    public void closeRefreshView() {
+
+        if (iSlidHeadRefreshView != null) {
+            iSlidHeadRefreshView.closeRefreshView();
+        }
+        if (iSlidFootRefreshView != null) {
+            iSlidFootRefreshView.closeMoreView();
+        }
+        if (getOrientation() == VERTICAL) {
+            mSLayoutParams.topMargin = 0;
+            mSLayoutParams.bottomMargin = 0;
+            mScrollView.setLayoutParams(mSLayoutParams);
+        } else {
+            mSLayoutParams.leftMargin = 0;
+            mSLayoutParams.rightMargin = 0;
+            mHScrollView.setLayoutParams(mSLayoutParams);
+        }
+        isRefreshState = false;
+        isScrollSlid = true; // 打开滚动视图滚动
+    }
+
+    /**
+     * 刷新列表数据
+     */
+    public void refreshUiData() {
+        for (Map.Entry<Integer, View> entry : slidMenuContainer.entrySet()) {
+            ((LinearLayout) ((ViewGroup) entry.getValue()).getChildAt(0)).removeAllViews(); // 清空掉所有的滑动菜单
+        }
+
+        mLinearLayout.removeAllViews();
+        // 添加Header
+        for (View headView : headerList) {
+            mLinearLayout.addView(headView);
+        }
+        // 添加列表内容
+        mViews.clear();
+        for (int position = 0; (position < mListSize && position < maxItem); position++) {
+            mViews.add(onCreateViewInterface.getView(position));
+            mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
+        }
+        // 添加Footer
+        for (View footerView : footerList) {
+            mLinearLayout.addView(footerView);
+        }
+        mLinearLayout.invalidate();
+
+        this.mFrameLayout.removeAllViews();
+        if (isOpenRefresh) {
+            this.addSlidRefreshHeadView(mFrameLayout);  // 添加刷新头控件
+        }
+        if (isOpenMore) {
+            this.addSlidRefreshFootView(mFrameLayout);  // 添加刷新尾控件
+        }
+        if (getOrientation() == VERTICAL) {
+            mScrollView.removeAllViews();
+            mScrollView.addView(mLinearLayout);
+            this.mFrameLayout.addView(mScrollView);
+        } else {
+            mHScrollView.removeAllViews();
+            mHScrollView.addView(mLinearLayout);
+            this.mFrameLayout.addView(mHScrollView);
+        }
+        this.mFrameLayout.addView(mSlidView);
+
+        this.removeAllViews();
+        this.addView(mFrameLayout);
+        this.invalidate();
+
+        // 如果有左/上滑动菜单要主动关闭 不然会默认显示出来左边或者上边的按钮 这个方法要在界面初始化完调用才有效
+        runOnDelayed(new Runnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<Integer, View> entry : leftSlidViewMap.entrySet()) {
+                    View cView = slidMenuContainer.get(entry.getKey());
+                    if (cView != null && getOrientation() == VERTICAL) {
+                        ((HorizontalScrollView) cView).smoothScrollTo(entry.getValue().getWidth(), 0);
+                    } else if (cView != null && getOrientation() == HORIZONTAL) {
+                        ((ScrollView) cView).smoothScrollTo(0, entry.getValue().getHeight());
+                    }
+                }
+                mContentWidth = mLinearLayout.getWidth();
+                mContentHeight = mLinearLayout.getHeight();
+            }
+        });
+    }
+
+    /**
+     * 是否开启下拉刷新 默认关闭
+     */
+    public void setIsOpenRefresh(boolean isOpenRefresh) {
+        this.isOpenRefresh = isOpenRefresh;
+    }
+
+    /**
+     * 是否开启上拉加载更多 默认关闭
+     */
+    public void setIsOpenMore(boolean isOpenMore) {
+        this.isOpenMore = isOpenMore;
+    }
+
+    /**
+     * 设置下拉刷新/上拉加载回调
+     */
+    public void setOnSlidRefreshInterface(OnSlidRefreshInterface onSlidRefreshInterface) {
+        this.onSlidRefreshInterface = onSlidRefreshInterface;
+    }
+
+    /**
+     * 设置自定义的下拉刷新头
+     */
+    public void setiSlidHeadRefreshView(ISlidHeadRefreshView iSlidHeadRefreshView) {
+        this.iSlidHeadRefreshView = iSlidHeadRefreshView;
+    }
+
+    /**
+     * 设置自定义的上拉加载尾
+     */
+    public void setISlidFootRefreshView(ISlidFootRefreshView iSlidFootRefreshView) {
+        this.iSlidFootRefreshView = iSlidFootRefreshView;
+    }
+
+    /**
+     * 添加列表头部
+     */
     public void addHeaderView(final View headerView) {
         runOnDelayed(new Runnable() {
             @Override
@@ -829,7 +852,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         });
     }
 
-    // 删除头部
+    /**
+     * 删除列表头部 多个头部时 location 定位头部 一个头部 传入 0
+     */
     public void removeHeaderView(final int location) {
         runOnDelayed(new Runnable() {
             @Override
@@ -842,7 +867,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         });
     }
 
-    // 添加尾部
+    /**
+     * 添加尾部
+     */
     public void addFooterView(final View footerView) {
         runOnDelayed(new Runnable() {
             @Override
@@ -854,7 +881,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         });
     }
 
-    // 删除尾部
+    /**
+     * 删除列表尾部 location多个尾部时 定位尾部 一个尾部 传入 0
+     */
     public void removeFooterView(final int location) {
         runOnDelayed(new Runnable() {
             @Override
@@ -867,15 +896,23 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         });
     }
 
+    /**
+     * 在末尾添加View (这里添加的要是超过列表item最大限制会把第一个顶出去 以此类推)
+     */
     public void addChildView(View view) {
         addChildView(view, false, false);
     }
 
+    /**
+     * 在末尾添加View (这里添加的要是超过列表item最大限制会把第一个顶出去 以此类推)
+     */
     public void addChildView(View view, boolean isClear, boolean mandatoryAdd) {
         addChildView(view, isClear, mandatoryAdd, true);
     }
 
-    // 在末尾添加View
+    /**
+     * 在末尾添加View (这里添加的要是超过列表item最大限制会把第一个顶出去 以此类推)
+     */
     public void addChildView(final View view, final boolean isClear, final boolean mandatoryAdd, final boolean isRefresh) {
         runOnDelayed(new Runnable() {
             @Override
@@ -898,7 +935,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         });
     }
 
-    // 添加View集合
+    /**
+     * 添加View集合 (这里添加的要是超过列表item最大限制会把第一个顶出去 以此类推)
+     */
     public void addViews(List<View> views, boolean isClear, boolean mandatoryAdd) {
         for (View view : views) {
             addChildView(view, isClear, mandatoryAdd, false);
@@ -906,79 +945,130 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         refreshUiData();
     }
 
-    // 获取滚动对象(需要延迟加载)
+    /**
+     * 获取滚动对象 竖直方向时 (需要延迟加载)
+     */
     public ScrollView getmScrollView() {
         return mScrollView;
     }
 
-    // 获取滚动对象(需要延迟加载)
+    /**
+     * 获取滚动对象 横向方向时 (需要延迟加载)
+     */
     public HorizontalScrollView getmHScrollView() {
         return mHScrollView;
     }
 
-    // 获取列表对象(需要延迟加载)
+    /**
+     * 获取列表对象(需要延迟加载)
+     */
     public LinearLayout getmLinearLayout() {
         return mLinearLayout;
     }
 
+    /**
+     * 设置列表左边滑动菜单按钮 key 对应列表的行号
+     */
     public void setLeftSlidMenu(Map<Integer, String[]> leftSlidMenu) {
         this.leftSlidMenu.clear();
         this.leftSlidMenu.putAll(leftSlidMenu);
     }
 
+    /**
+     * 设置左边滑动菜单的按钮 position 列表的行号
+     */
     public void setLeftSlidMenu(Integer position, String... menus) {
         this.leftSlidMenu.put(position, menus);
     }
 
+    /**
+     * 设置是否打开列表左边的滑动菜单
+     */
     public void setLeftSlidOpen(boolean leftSlidOpen) {
         this.leftSlidOpen = leftSlidOpen;
     }
 
+    /**
+     * 设置列表右边滑动菜单的菜单 key 对应列表行号
+     */
     public void setRightSlidMenu(Map<Integer, String[]> rightSlidMenu) {
         this.rightSlidMenu.clear();
         this.rightSlidMenu.putAll(rightSlidMenu);
     }
 
+    /**
+     * 设置列表右边滑动菜单 position 对应列表行号
+     */
     public void setRightSlidMenu(Integer position, String... menus) {
         this.rightSlidMenu.put(position, menus);
     }
 
+    /**
+     * 是否开启列表右边的滑动菜单
+     */
     public void setRightSlidOpen(boolean rightSlidOpen) {
         this.rightSlidOpen = rightSlidOpen;
     }
 
+    /**
+     * 设置列表的方向 设置结束后请调用一次刷新列表方法
+     */
     public void setmOrientation(int orientation) {
         setOrientation(orientation);
     }
 
+    /**
+     * 设置列表Item单击事件监听
+     */
     public void setOnItemClickInterface(OnItemClickInterface onItemClickInterface) {
         this.onItemClickInterface = onItemClickInterface;
     }
 
+    /**
+     * 设置列表Item长按事件监听
+     */
     public void setOnItemLongClickInterface(OnItemLongClickInterface onItemLongClickInterface) {
         this.onItemLongClickInterface = onItemLongClickInterface;
     }
 
+    /**
+     * 自定义列表右边的滑动菜单样式
+     */
     public void setOnCreateSlidMenuRightInterface(OnCreateSlidMenuRightInterface onCreateSlidMenuRightInterface) {
         this.onCreateSlidMenuRightInterface = onCreateSlidMenuRightInterface;
     }
 
+    /**
+     * 自定义列表左边滑动菜单样式
+     */
     public void setOnCreateSlidMenuLeftInterface(OnCreateSlidMenuLeftInterface onCreateSlidMenuLeftInterface) {
         this.onCreateSlidMenuLeftInterface = onCreateSlidMenuLeftInterface;
     }
 
+    /**
+     * 监听滑动按钮单击事件
+     */
     public void setOnCreateSlidMenuClickInterface(OnCreateSlidMenuClickInterface onCreateSlidMenuClickInterface) {
         this.onCreateSlidMenuClickInterface = onCreateSlidMenuClickInterface;
     }
 
+    /**
+     * 列表的最大值 超过的数据将不会被加载到界面显示 但是调用addChildView()添加的view会把第一个顶出去 以此类推 (如果没有性能要求建议不要设置)
+     */
     public void setMaxItem(int maxItem) {
         this.maxItem = maxItem;
     }
 
+    /**
+     * 设置列表的长度 (这个必须设置 不然列表将不显示数据)
+     */
     public void setListSize(int listSize) {
         this.mListSize = listSize;
     }
 
+    /**
+     * 生成列表的ItemView (这个方法必须调用 不然列表将不显示数据)
+     */
     public void setOnCreateViewInterface(OnCreateViewInterface onCreateViewInterface) {
         this.onCreateViewInterface = onCreateViewInterface;
     }
