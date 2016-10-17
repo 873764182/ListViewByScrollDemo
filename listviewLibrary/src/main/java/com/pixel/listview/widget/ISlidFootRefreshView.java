@@ -1,5 +1,6 @@
 package com.pixel.listview.widget;
 
+import android.content.Context;
 import android.view.View;
 
 /**
@@ -15,7 +16,6 @@ public abstract class ISlidFootRefreshView {
 
     // 上拉加载的滑动的时候
     public void onSliding(int scope, int sliding) {
-
     }
 
     // 拦截下拉加载 true
@@ -27,7 +27,11 @@ public abstract class ISlidFootRefreshView {
     public void performMoreView(){
     }
 
+    // 关闭加载
+    public void closeMoreView(){
+    }
+
     // 上拉加载时显示的视图
-    public abstract View getMoreView(int width, int height);
+    public abstract View getMoreView(Context context, int width, int height);
 
 }

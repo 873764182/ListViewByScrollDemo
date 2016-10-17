@@ -1,5 +1,6 @@
 package com.pixel.listview.widget;
 
+import android.content.Context;
 import android.view.View;
 
 /**
@@ -15,19 +16,22 @@ public abstract class ISlidHeadRefreshView {
 
     // 下拉刷新的滑动的时候
     public void onSliding(int scope, int sliding) {
-
     }
 
     // 拦截下拉刷新 true
-    public boolean interceptRefresh(int scope, int sliding){
+    public boolean interceptRefresh(int scope, int sliding) {
         return false;
     }
 
     // 当前正在刷新
-    public void performRefreshView(){
+    public void performRefreshView() {
+    }
+
+    // 关闭刷新
+    public void closeRefreshView() {
     }
 
     // 下拉刷新时显示的视图
-    public abstract View getRefreshView(int width, int height);
+    public abstract View getRefreshView(Context context, int width, int height);
 
 }

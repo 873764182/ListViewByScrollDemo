@@ -115,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mLinearListView.setIsOpenRefresh(true);
+        mLinearListView.setIsOpenMore(true);
         mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
             @Override
             public void doRefresh(Context mContext, LinearListView linearListView) {
