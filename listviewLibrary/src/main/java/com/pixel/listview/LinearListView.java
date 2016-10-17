@@ -470,11 +470,15 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     }
                     // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
                     if ((isOpenRefresh && mNewX <= 0) || mContentWidth <= mRootWidth) {
-                        updateRefreshModel(false, true);
+                        if (moveX > downX && (moveX - downX > SLIDO_OFFSET)) {  // 向右滑
+                            updateRefreshModel(false, true);
+                        }
                     }
                     // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
                     if ((isOpenMore && mNewX >= mContentWidth - mRootWidth) || mContentWidth <= mRootWidth) {
-                        updateRefreshModel(false, false);
+                        if (downX > moveX && (downX - moveX > SLIDO_OFFSET)) {  // 向左滑
+                            updateRefreshModel(false, false);
+                        }
                     }
                 }
                 break;
@@ -586,7 +590,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                             }
                             mSLayoutParams.rightMargin = moveValue > 0 ? moveValue : 0;
                             mHScrollView.setLayoutParams(mSLayoutParams);
-                            // mHScrollView.scrollTo(mContentWidth, 0);    // smoothScrollTo 目前这里存在问题 使列表不能滑动 每次都被定为到末尾
+                            mHScrollView.scrollTo(mContentWidth, 0);    // smoothScrollTo 目前这里存在问题 使列表不能滑动 每次都被定为到末尾
                             scope = footSlidSize <= 0 ? (mRootWidth / 4) : footSlidSize;
                             if (iSlidFootRefreshView != null) {
                                 iSlidFootRefreshView.onSliding(scope, moveValue);
