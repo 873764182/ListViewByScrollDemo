@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -948,7 +947,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         this.rightSlidOpen = rightSlidOpen;
     }
 
-    public void setmOrientation(@LinearLayoutCompat.OrientationMode int orientation) {
+    public void setmOrientation(int orientation) {
         setOrientation(orientation);
     }
 
