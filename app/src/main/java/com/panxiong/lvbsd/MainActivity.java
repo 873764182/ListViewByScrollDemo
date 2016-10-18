@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mLinearListView = (LinearListView) findViewById(R.id.linearListView);
-        mLinearListView.setListSize(20);
+        mLinearListView.setListSize(5);
         mLinearListView.setOnCreateViewInterface(new OnCreateViewInterface() {
             @Override
             public View getView(int position) {

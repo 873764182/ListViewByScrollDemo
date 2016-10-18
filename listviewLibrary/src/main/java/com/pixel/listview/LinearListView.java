@@ -67,7 +67,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private View mSlidView;
     /*布局管理器*/
     private LayoutParams mFLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    private LayoutParams mVLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     private FrameLayout.LayoutParams mSLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     private LayoutParams mLLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     /*最大值 Item的最大数量*/
@@ -127,9 +126,14 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         super.onLayout(changed, left, top, right, bottom);
         this.mRootWidth = getWidth();   // right - left
         this.mRootHeight = getHeight(); // bottom - top
-        if (changed) doInit();
+        if (!isIniteOk) this.initContainer();
+        if (changed) {
+            refreshUiData();
+            isIniteOk = true;
+        }
     }
 
+    // 延迟加载
     private void runOnDelayed(Runnable runnable) {
         if (isIniteOk) {
             mHandler.post(runnable);
@@ -451,13 +455,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     }
                     // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
                     if ((isOpenRefresh && mNewY <= 0) || mContentHeight <= mRootHeight) {
-                        if (moveY > downY && (moveY - downY > SLIDO_OFFSET)) { //  向下滑
+                        if (moveY > downY && (moveY - downY >= SLIDO_OFFSET)) { //  向下滑
                             updateRefreshModel(true, true);
                         }
                     }
                     // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
                     if ((isOpenMore && mNewY >= mContentHeight - mRootHeight) || mContentHeight <= mRootHeight) {
-                        if (downY > moveY && (downY - moveY > SLIDO_OFFSET)) {  // 向上滑
+                        if (downY > moveY && (downY - moveY >= SLIDO_OFFSET)) {  // 向上滑
                             updateRefreshModel(true, false);
                         }
                     }
@@ -470,13 +474,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     }
                     // 打开下拉刷新且滑到了顶部或者是列表高度小于等于屏幕高度时
                     if ((isOpenRefresh && mNewX <= 0) || mContentWidth <= mRootWidth) {
-                        if (moveX > downX && (moveX - downX > SLIDO_OFFSET)) {  // 向右滑
+                        if (moveX > downX && (moveX - downX >= SLIDO_OFFSET)) {  // 向右滑
                             updateRefreshModel(false, true);
                         }
                     }
                     // 打开加载更多且滑到的底部或者是列表高度小于等于屏幕高度时
                     if ((isOpenMore && mNewX >= mContentWidth - mRootWidth) || mContentWidth <= mRootWidth) {
-                        if (downX > moveX && (downX - moveX > SLIDO_OFFSET)) {  // 向左滑
+                        if (downX > moveX && (downX - moveX >= SLIDO_OFFSET)) {  // 向左滑
                             updateRefreshModel(false, false);
                         }
                     }
@@ -697,7 +701,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));
 
         mSlidView = new View(mContext);
-        mSlidView.setLayoutParams(mVLayoutParams);
+        mSlidView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mSlidView.setBackgroundColor(Color.argb(0, 0, 0, 0)); // 蒙板颜色
         mSlidView.setClickable(true);
         mSlidView.setVisibility(GONE);
@@ -725,11 +729,28 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
     }
 
-    // 控件初始化
-    private void doInit() {
-        if (!isIniteOk) this.initContainer();
-        this.refreshUiData();
-        isIniteOk = true;
+    // 打开下拉刷新或者上拉加载的情况下 内容不满容器高度/宽度 添加一个空白View填充
+    private void setRefreshFillView(final boolean isOpen) {
+        runOnDelayed(new Runnable() {
+            @Override
+            public void run() { // 把滚动视图缩短
+                LayoutParams layoutParams= (LayoutParams) getLayoutParams();
+                if (getOrientation() == VERTICAL && mContentHeight <= mRootHeight) {
+                    if (isOpen) {
+                        layoutParams.height = mContentHeight - SLIDO_OFFSET;
+                    } else {
+                        layoutParams.height = mContentHeight;
+                    }
+                } else if (getOrientation() == HORIZONTAL && mContentWidth <= mRootWidth) {
+                    if (isOpen) {
+                        layoutParams.width = mContentWidth - SLIDO_OFFSET;
+                    } else {
+                        layoutParams.width = mContentWidth;
+                    }
+                }
+                setLayoutParams(layoutParams);
+            }
+        });
     }
 
     /**
@@ -825,6 +846,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      * 是否开启下拉刷新 默认关闭
      */
     public void setIsOpenRefresh(boolean isOpenRefresh) {
+        setRefreshFillView(isOpenRefresh);
         this.isOpenRefresh = isOpenRefresh;
     }
 
@@ -832,6 +854,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      * 是否开启上拉加载更多 默认关闭
      */
     public void setIsOpenMore(boolean isOpenMore) {
+        setRefreshFillView(isOpenMore);
         this.isOpenMore = isOpenMore;
     }
 
