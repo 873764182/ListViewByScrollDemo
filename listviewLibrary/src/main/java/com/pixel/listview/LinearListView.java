@@ -396,7 +396,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private int downX = 0, downY = 0, moveX = 0, moveY = 0; // 滚动视图的触摸位置
     private int downX_slid = 0, downY_slid = 0, moveX_slid = 0, moveY_slid = 0; // 处理滑动刷新的蒙板的触摸参数
     private int headSlidSize = 0, footSlidSize = 0; // 头部尾部刷新View的高度(横向时时宽度)
-    private float triggerRefreshValue = 2 / 3; // 临界值 滑动到百分之多少时触发刷新事件
+    private float triggerRefreshValue = 2f / 3f; // 临界值 滑动到百分之多少时触发刷新事件
 
     private OnSlidRefreshInterface onSlidRefreshInterface;  // 刷新/加载 回调接口
     private ISlidHeadRefreshView iSlidHeadRefreshView;  // 下拉刷新头部(在用户打开下拉刷新时创建一个默认,用户也可以自定义)
@@ -736,23 +736,36 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         runOnDelayed(new Runnable() {
             @Override
             public void run() { // 把滚动视图缩短
-                LayoutParams layoutParams = (LayoutParams) getLayoutParams();
-                if (getOrientation() == VERTICAL && mContentHeight <= mRootHeight) {
-                    if (isOpen) {
-                        layoutParams.height = mContentHeight - SLIDO_OFFSET;
-                    } else {
-                        layoutParams.height = mContentHeight;
+                // 必须进行第二次延迟加载
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        LayoutParams layoutParams = (LayoutParams) getLayoutParams();
+                        if (getOrientation() == VERTICAL && mContentHeight <= mRootHeight) {
+                            if (isOpen) {
+                                layoutParams.height = mContentHeight - SLIDO_OFFSET;
+                            } else {
+                                layoutParams.height = mContentHeight;
+                            }
+                        } else if (getOrientation() == HORIZONTAL && mContentWidth <= mRootWidth) {
+                            if (isOpen) {
+                                layoutParams.width = mContentWidth - SLIDO_OFFSET;
+                            } else {
+                                layoutParams.width = mContentWidth;
+                            }
+                        }
+                        setLayoutParams(layoutParams);
                     }
-                } else if (getOrientation() == HORIZONTAL && mContentWidth <= mRootWidth) {
-                    if (isOpen) {
-                        layoutParams.width = mContentWidth - SLIDO_OFFSET;
-                    } else {
-                        layoutParams.width = mContentWidth;
-                    }
-                }
-                setLayoutParams(layoutParams);
+                }, 500);
             }
         });
+    }
+
+    /**
+     * 获取触发滑动刷新的临界值
+     */
+    public float getTriggerRefreshValue() {
+        return triggerRefreshValue;
     }
 
     /**

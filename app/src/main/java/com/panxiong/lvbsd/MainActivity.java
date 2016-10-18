@@ -6,8 +6,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -140,27 +138,6 @@ public class MainActivity extends AppCompatActivity {
                         mLinearListView.closeRefreshView();
                     }
                 }, 2000);
-            }
-        });
-    }
-
-    private void test() {
-
-        ListView listView = new ListView(this);
-        listView.addHeaderView(null);
-        listView.addFooterView(null);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return false;
             }
         });
     }
