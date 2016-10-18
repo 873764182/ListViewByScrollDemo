@@ -13,6 +13,9 @@ import com.pixel.listview.LinearListView;
 
 public abstract class ISlidHeadRefreshView {
 
+    public ISlidHeadRefreshView() {
+    }
+
     public ISlidHeadRefreshView(LinearListView linearListView) {
     }
 
