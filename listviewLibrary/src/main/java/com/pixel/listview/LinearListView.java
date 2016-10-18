@@ -698,7 +698,8 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private void initContainer() {
         mFrameLayout = new FrameLayout(mContext);
         mFrameLayout.setLayoutParams(mFLayoutParams);
-        mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));
+        mFrameLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
+        // mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));    // 容器背景设置
 
         mSlidView = new View(mContext);
         mSlidView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -710,7 +711,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         mLinearLayout = new LinearLayout(mContext);
         mLinearLayout.setLayoutParams(mLLayoutParams);
         mLinearLayout.setOrientation(getOrientation());
-        mLinearLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
+        mLinearLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));   // 内容控件背景色
 
         if (getOrientation() == LinearLayout.VERTICAL) {
             mScrollView = new PScrollView(mContext);
@@ -734,7 +735,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         runOnDelayed(new Runnable() {
             @Override
             public void run() { // 把滚动视图缩短
-                LayoutParams layoutParams= (LayoutParams) getLayoutParams();
+                LayoutParams layoutParams = (LayoutParams) getLayoutParams();
                 if (getOrientation() == VERTICAL && mContentHeight <= mRootHeight) {
                     if (isOpen) {
                         layoutParams.height = mContentHeight - SLIDO_OFFSET;
@@ -838,6 +839,26 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 }
                 mContentWidth = mLinearLayout.getWidth();
                 mContentHeight = mLinearLayout.getHeight();
+
+                // 设置根视图内容与内容视图一样大
+                if (mContentWidth <= mRootWidth || mContentHeight <= mRootHeight) {
+                    LayoutParams layoutParams = (LayoutParams) getLayoutParams();
+                    if (layoutParams.width == LayoutParams.WRAP_CONTENT) {
+                        if (isOpenRefresh || isOpenMore) {
+                            layoutParams.width = mContentWidth - SLIDO_OFFSET;
+                        } else {
+                            layoutParams.width = mContentWidth;
+                        }
+                    }
+                    if (layoutParams.height == LayoutParams.WRAP_CONTENT) {
+                        if (isOpenRefresh || isOpenMore) {
+                            layoutParams.height = mContentHeight - SLIDO_OFFSET;
+                        } else {
+                            layoutParams.height = mContentHeight;
+                        }
+                    }
+                    setLayoutParams(layoutParams);
+                }
             }
         });
     }
@@ -994,6 +1015,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     }
 
     /**
+     * 获取控件容器对象
+     */
+    public FrameLayout getmFrameLayout() {
+        return mFrameLayout;
+    }
+
+    /**
      * 获取滚动对象 竖直方向时 (需要延迟加载)
      */
     public ScrollView getmScrollView() {
@@ -1012,6 +1040,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      */
     public LinearLayout getmLinearLayout() {
         return mLinearLayout;
+    }
+
+    /**
+     * 获取滑动刷新蒙板view
+     */
+    public View getmSlidView() {
+        return mSlidView;
     }
 
     /**
