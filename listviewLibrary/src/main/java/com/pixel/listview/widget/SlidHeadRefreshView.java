@@ -41,7 +41,7 @@ public class SlidHeadRefreshView extends ISlidHeadRefreshView {
             refreshView.setLayoutParams(new LinearLayout.LayoutParams(width, height / 4));
             refreshView.setOrientation(LinearLayout.HORIZONTAL);
             refreshView.setGravity(Gravity.CENTER | Gravity.TOP);
-            refreshView.setBackgroundColor(Color.argb(200, 255, 255, 255));
+            refreshView.setBackgroundColor(Color.argb(200, 153, 153, 153));
 
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, height / 8));

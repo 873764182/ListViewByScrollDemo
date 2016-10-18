@@ -41,7 +41,7 @@ public class SlidFootRefreshView extends ISlidFootRefreshView {
             moreView.setLayoutParams(new LinearLayout.LayoutParams(width, height / 8));
             moreView.setOrientation(LinearLayout.HORIZONTAL);
             moreView.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-            moreView.setBackgroundColor(Color.argb(200, 255, 255, 255));
+            moreView.setBackgroundColor(Color.argb(200, 153, 153, 153));
 
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, height / 16));

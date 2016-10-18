@@ -41,7 +41,7 @@ public class HSlidHeadRefreshView extends ISlidHeadRefreshView {
             refreshView.setLayoutParams(new LinearLayout.LayoutParams(width / 4, height));
             refreshView.setOrientation(LinearLayout.VERTICAL);
             refreshView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-            refreshView.setBackgroundColor(Color.argb(200, 255, 255, 255));
+            refreshView.setBackgroundColor(Color.argb(200, 153, 153, 153));
 
             LinearLayout linearLayout = new LinearLayout(context);
             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));

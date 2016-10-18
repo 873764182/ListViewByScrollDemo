@@ -699,8 +699,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private void initContainer() {
         mFrameLayout = new FrameLayout(mContext);
         mFrameLayout.setLayoutParams(mFLayoutParams);
-        mFrameLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));
-        // mFrameLayout.setBackgroundColor(Color.argb(200, 153, 153, 153));    // 容器背景设置
+        mFrameLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));    // 容器背景设置 Color.argb(200, 153, 153, 153)
 
         mSlidView = new View(mContext);
         mSlidView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));

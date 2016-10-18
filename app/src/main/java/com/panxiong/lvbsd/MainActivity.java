@@ -63,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mLinearListView.setLeftSlidOpen(true);
-        mLinearListView.setLeftSlidMenu(5, "菜单1", "菜单2", "菜单3");
-        mLinearListView.setLeftSlidMenu(6, "菜单");
+        mLinearListView.setLeftSlidMenu(3, "菜单1", "菜单2", "菜单3");
+        mLinearListView.setLeftSlidMenu(4, "菜单");
         mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
             @Override
             public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
