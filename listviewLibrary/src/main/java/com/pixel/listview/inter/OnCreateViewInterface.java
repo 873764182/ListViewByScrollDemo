@@ -9,5 +9,9 @@ import android.view.View;
  */
 
 public interface OnCreateViewInterface {
+    // 列表长度
+    int getCount();
+
+    // 列表的视图
     View getView(int position);
 }

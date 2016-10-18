@@ -826,6 +826,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
         // 添加列表内容
         mViews.clear();
+        if (onCreateViewInterface != null) {
+            mListSize = onCreateViewInterface.getCount();
+        }
         for (int position = 0; (position < mListSize && position < maxItem); position++) {
             mViews.add(onCreateViewInterface.getView(position));
             mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
@@ -888,7 +891,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
                 // 设置根视图内容与内容视图一样大
                 if (mContentWidth <= mRootWidth || mContentHeight <= mRootHeight) {
-                    LayoutParams layoutParams = (LayoutParams) getLayoutParams();
+                    ViewGroup.LayoutParams layoutParams = getLayoutParams();
                     if (layoutParams.width == LayoutParams.WRAP_CONTENT) {
                         if (isOpenRefresh || isOpenMore) {
                             layoutParams.width = mContentWidth - SLIDO_OFFSET;
@@ -1186,13 +1189,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      */
     public void setMaxItem(int maxItem) {
         this.maxItem = maxItem;
-    }
-
-    /**
-     * 设置列表的长度 (这个必须设置 不然列表将不显示数据)
-     */
-    public void setListSize(int listSize) {
-        this.mListSize = listSize;
     }
 
     /**

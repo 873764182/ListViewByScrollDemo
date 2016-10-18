@@ -3,17 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
     tools:context="com.panxiong.lvbsd.MainActivity">
 
-    <com.pixel.listview.LinearListView
-        android:id="@+id/linearListView"
+    <Button
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" />
-
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="哈哈" />
+        android:onClick="toVertical"
+        android:text="竖直的列表" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="toHorizontal"
+        android:text="水平的列表" />
 </LinearLayout>
