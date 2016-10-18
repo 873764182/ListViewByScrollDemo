@@ -20,6 +20,9 @@ android {
     }
     productFlavors {
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -30,3 +33,18 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
 }
+
+//Copy类型
+task makeJar(type: Copy) {
+    // delete 'output-jar/pixel-linearListView-lib.jar'//删除存在的
+    from('build/intermediates/bundles/release/') //设置拷贝的文件
+    into('outputJar/') //打进jar包后的文件目录
+    //将classes.jar放入build/libs/目录下 include ,exclude参数来设置过滤 （我们只关心classes.jar这个文件）
+    include('classes.jar')
+    rename('classes.jar', 'pixel-linear-listview.jar') //重命名
+}
+
+makeJar.dependsOn(build)
+
+// gradlew makeJar //在终端(Terminal)执行生成JAR包
+
