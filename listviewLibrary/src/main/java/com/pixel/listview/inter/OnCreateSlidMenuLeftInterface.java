@@ -8,7 +8,7 @@ import android.view.View;
 
 public interface OnCreateSlidMenuLeftInterface {
     /**
-     * 自定义滑动菜单按钮
+     * 自定义左边滑动菜单按钮
      *
      * @param containerView 按钮容器(父视图)
      * @param position      列表行
@@ -16,5 +16,5 @@ public interface OnCreateSlidMenuLeftInterface {
      * @param menuName      按钮名称
      * @return
      */
-    View getSlidMenuItem(View containerView, int position, int menuOrder, String menuName);
+    View getSlidMenuItem(View containerView, int position, int menuSize, int menuOrder, String menuName);
 }

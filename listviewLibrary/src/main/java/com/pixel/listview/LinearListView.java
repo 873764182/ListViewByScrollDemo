@@ -2,6 +2,7 @@ package com.pixel.listview;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -9,6 +10,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -114,11 +116,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     public LinearListView(Context context) {
         super(context);
         this.mContext = context;
+        this.initScreenSize();
     }
 
     public LinearListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
+        this.initScreenSize();
     }
 
     @Override
@@ -171,9 +175,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         for (int menuOrder = 0; menuOrder < menus.length; menuOrder++) { // 滑动按钮的样式可以在这里定义
             View slidMenu = null;
             if (direction == 1 && onCreateSlidMenuRightInterface != null) {
-                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else if (direction == 0 && onCreateSlidMenuLeftInterface != null) {
-                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else {
                 TextView textView = new TextView(mContext);
                 textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -207,9 +211,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         for (int menuOrder = 0; menuOrder < menus.length; menuOrder++) { // 滑动按钮的样式可以在这里定义
             View slidMenu = null;
             if (direction == 1 && onCreateSlidMenuRightInterface != null) {
-                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else if (direction == 0 && onCreateSlidMenuLeftInterface != null) {
-                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else {
                 TextView textView = new TextView(mContext);
                 textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -397,11 +401,21 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private int downX_slid = 0, downY_slid = 0, moveX_slid = 0, moveY_slid = 0; // 处理滑动刷新的蒙板的触摸参数
     private int headSlidSize = 0, footSlidSize = 0; // 头部尾部刷新View的高度(横向时时宽度)
     private float triggerRefreshValue = 2f / 3f; // 临界值 滑动到百分之多少时触发刷新事件
+    private int screenWidth = 0, screenHeight = 0;  // 屏幕宽高(当列表为空且要求刷新时必须填充一个View支持刷新操作)
 
     private OnSlidRefreshInterface onSlidRefreshInterface;  // 刷新/加载 回调接口
     private ISlidHeadRefreshView iSlidHeadRefreshView;  // 下拉刷新头部(在用户打开下拉刷新时创建一个默认,用户也可以自定义)
     private ISlidFootRefreshView iSlidFootRefreshView;  // 上拉加载头部(在用户打开上拉加载时创建一个默认,用户也可以自定义)
     private OnScrollTopOrBottomInterface onScrollTopOrBottomInterface;  // 列表滚动到了顶部或者底部回调
+
+    // 初始化屏幕宽高
+    private void initScreenSize() {
+        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        Point point = new Point();
+        wm.getDefaultDisplay().getSize(point);
+        screenWidth = point.x;
+        screenHeight = point.y;
+    }
 
     // 更新滑动刷新模式下的状态
     private void updateRefreshModel(boolean isVertical, boolean isRefresh) {
@@ -812,20 +826,22 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
         // 添加列表内容
         mViews.clear();
-        if (mListSize > 0) {
-            for (int position = 0; (position < mListSize && position < maxItem); position++) {
-                mViews.add(onCreateViewInterface.getView(position));
-                mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
-            }
-        } else if (mListSize <= 0 && (isOpenRefresh || isOpenMore)) {
-            View fillView = new View(mContext);
-            fillView.setLayoutParams(new LayoutParams(600, 600));
-            fillView.setBackgroundColor(Color.argb(255, 0, 0, 0));
-            fillView.setTag("NULL_FILL_VIEW");
-            fillView.setClickable(true);
-            mLinearLayout.addView(fillView); // TODO 写到这里
+        for (int position = 0; (position < mListSize && position < maxItem); position++) {
+            mViews.add(onCreateViewInterface.getView(position));
+            mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
         }
-
+        // 处理打开滑动刷新但是列表为空的时
+        if ((isOpenRefresh || isOpenMore) && mViews.size() <= 0) {
+            View fillView = new View(mContext);
+            fillView.setBackgroundColor(Color.argb(0, 255, 255, 255));
+            fillView.setClickable(true);
+            if (getOrientation() == VERTICAL) {
+                fillView.setLayoutParams(new LayoutParams(mRootWidth <= 0 ? screenWidth : mRootWidth, screenHeight / 3));
+            } else {
+                fillView.setLayoutParams(new LayoutParams(screenWidth / 2, mRootHeight <= 0 ? screenHeight : mRootHeight));
+            }
+            mLinearLayout.addView(fillView);
+        }
 
         // 添加Footer
         for (View footerView : footerList) {

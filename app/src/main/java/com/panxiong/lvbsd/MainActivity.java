@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mLinearListView = (LinearListView) findViewById(R.id.linearListView);
-        mLinearListView.setListSize(0);
+        mLinearListView.setListSize(5);
         mLinearListView.setOnCreateViewInterface(new OnCreateViewInterface() {
             @Override
             public View getView(int position) {
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
 //                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-                mLinearListView.refreshUiData();   // 如果是横向列表是 每次都要调用一次刷新才能出现数据 目前找不到原因
+                //  mLinearListView.refreshUiData();
             }
         }, 2000);
 
