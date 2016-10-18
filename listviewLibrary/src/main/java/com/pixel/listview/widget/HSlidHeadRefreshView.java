@@ -11,6 +11,8 @@ import android.view.animation.RotateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.pixel.listview.LinearListView;
+
 /**
  * Created by Administrator on 2016/10/17.
  * <p>
@@ -24,7 +26,8 @@ public class HSlidHeadRefreshView extends ISlidHeadRefreshView {
 
     private RotateAnimation animation = null;
 
-    public HSlidHeadRefreshView() {
+    public HSlidHeadRefreshView(LinearListView linearListView) {
+        super(linearListView);
         animation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         animation.setInterpolator(new LinearInterpolator());
         animation.setRepeatCount(-1);

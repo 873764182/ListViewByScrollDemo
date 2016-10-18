@@ -3,6 +3,8 @@ package com.pixel.listview.widget;
 import android.content.Context;
 import android.view.View;
 
+import com.pixel.listview.LinearListView;
+
 /**
  * Created by Administrator on 2016/10/15.
  * <p>
@@ -11,7 +13,7 @@ import android.view.View;
 
 public abstract class ISlidFootRefreshView {
 
-    public ISlidFootRefreshView() {
+    public ISlidFootRefreshView(LinearListView linearListView) {
     }
 
     // 上拉加载的滑动的时候

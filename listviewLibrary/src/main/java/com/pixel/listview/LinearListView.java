@@ -359,9 +359,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     // 添加滑动刷新的头部
     private void addSlidRefreshHeadView(FrameLayout frameLayout) {
         if (getOrientation() == VERTICAL) {
-            iSlidHeadRefreshView = new SlidHeadRefreshView();
+            iSlidHeadRefreshView = new SlidHeadRefreshView(this);
         } else {
-            iSlidHeadRefreshView = new HSlidHeadRefreshView(); // 水平方向
+            iSlidHeadRefreshView = new HSlidHeadRefreshView(this); // 水平方向
         }
         this.mFrameLayout.addView(iSlidHeadRefreshView.getRefreshView(mContext, mRootWidth, mRootHeight), 0);
     }
@@ -371,12 +371,12 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         LinearLayout linearLayout = new LinearLayout(mContext);
         linearLayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         if (getOrientation() == VERTICAL) {
-            iSlidFootRefreshView = new SlidFootRefreshView();
+            iSlidFootRefreshView = new SlidFootRefreshView(this);
             linearLayout.setOrientation(VERTICAL);
             linearLayout.setGravity(Gravity.BOTTOM | Gravity.CENTER);
             linearLayout.addView(iSlidFootRefreshView.getMoreView(mContext, mRootWidth, mRootHeight));
         } else {
-            iSlidFootRefreshView = new HSlidFootRefreshView();
+            iSlidFootRefreshView = new HSlidFootRefreshView(this);
             linearLayout.setOrientation(VERTICAL);
             linearLayout.setGravity(Gravity.RIGHT | Gravity.CENTER);
             linearLayout.addView(iSlidFootRefreshView.getMoreView(mContext, mRootWidth, mRootHeight)); // 水平方向
@@ -396,6 +396,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private int downX = 0, downY = 0, moveX = 0, moveY = 0; // 滚动视图的触摸位置
     private int downX_slid = 0, downY_slid = 0, moveX_slid = 0, moveY_slid = 0; // 处理滑动刷新的蒙板的触摸参数
     private int headSlidSize = 0, footSlidSize = 0; // 头部尾部刷新View的高度(横向时时宽度)
+    private float triggerRefreshValue = 2 / 3; // 临界值 滑动到百分之多少时触发刷新事件
 
     private OnSlidRefreshInterface onSlidRefreshInterface;  // 刷新/加载 回调接口
     private ISlidHeadRefreshView iSlidHeadRefreshView;  // 下拉刷新头部(在用户打开下拉刷新时创建一个默认,用户也可以自定义)
@@ -610,7 +611,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     downY_slid = 0;
                     mSlidView.setVisibility(GONE);
 
-                    if (!isRefreshState && moveValue >= scope * 2 / 3) {    // 滑动距离超过HeadView的2/3时才触发刷新事件
+                    if (!isRefreshState && moveValue >= scope * triggerRefreshValue) {    // 滑动距离超过HeadView的2/3时才触发刷新事件
                         isRefreshState = true;
                         if (!isIntercept && onSlidRefreshInterface != null) {
                             isScrollSlid = false;   // 关闭列表滚动
@@ -752,6 +753,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 setLayoutParams(layoutParams);
             }
         });
+    }
+
+    /**
+     * 设置触发滑动刷新的百分比 (范围: 0.00 - 1.00)
+     */
+    public void setTriggerRefreshValue(float triggerRefreshValue) {
+        this.triggerRefreshValue = triggerRefreshValue;
     }
 
     /**
