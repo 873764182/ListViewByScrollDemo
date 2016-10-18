@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mLinearListView = (LinearListView) findViewById(R.id.linearListView);
-        mLinearListView.setListSize(5);
+        mLinearListView.setListSize(0);
         mLinearListView.setOnCreateViewInterface(new OnCreateViewInterface() {
             @Override
             public View getView(int position) {
@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             public void doRefresh(Context mContext, LinearListView linearListView) {
                 Log.e("MainActivity", "刷新");
 
+                mLinearListView.refreshUiData();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             public void doMore(Context mContext, LinearListView linearListView) {
                 Log.e("MainActivity", "加载");
 
+                mLinearListView.refreshUiData();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {

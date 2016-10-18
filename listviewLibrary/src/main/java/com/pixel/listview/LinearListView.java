@@ -805,7 +805,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         for (Map.Entry<Integer, View> entry : slidMenuContainer.entrySet()) {
             ((LinearLayout) ((ViewGroup) entry.getValue()).getChildAt(0)).removeAllViews(); // 清空掉所有的滑动菜单
         }
-
         mLinearLayout.removeAllViews();
         // 添加Header
         for (View headView : headerList) {
@@ -813,10 +812,21 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
         // 添加列表内容
         mViews.clear();
-        for (int position = 0; (position < mListSize && position < maxItem); position++) {
-            mViews.add(onCreateViewInterface.getView(position));
-            mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
+        if (mListSize > 0) {
+            for (int position = 0; (position < mListSize && position < maxItem); position++) {
+                mViews.add(onCreateViewInterface.getView(position));
+                mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
+            }
+        } else if (mListSize <= 0 && (isOpenRefresh || isOpenMore)) {
+            View fillView = new View(mContext);
+            fillView.setLayoutParams(new LayoutParams(600, 600));
+            fillView.setBackgroundColor(Color.argb(255, 0, 0, 0));
+            fillView.setTag("NULL_FILL_VIEW");
+            fillView.setClickable(true);
+            mLinearLayout.addView(fillView); // TODO 写到这里
         }
+
+
         // 添加Footer
         for (View footerView : footerList) {
             mLinearLayout.addView(footerView);
