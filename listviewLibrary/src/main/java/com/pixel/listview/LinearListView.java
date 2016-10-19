@@ -711,6 +711,14 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
     // 初始化容器
     private void initContainer() {
+
+        ViewGroup.LayoutParams rlp = getLayoutParams();
+        if (rlp != null) {
+            mFLayoutParams = new LayoutParams(rlp.width, rlp.height);
+            mSLayoutParams = new FrameLayout.LayoutParams(rlp.width, rlp.height);
+            mLLayoutParams = new LayoutParams(rlp.width, rlp.height);
+        }
+
         mFrameLayout = new FrameLayout(mContext);
         mFrameLayout.setLayoutParams(mFLayoutParams);
         mFrameLayout.setBackgroundColor(Color.argb(255, 255, 255, 255));    // 容器背景设置 Color.argb(200, 153, 153, 153)
@@ -838,11 +846,28 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             View fillView = new View(mContext);
             fillView.setBackgroundColor(Color.argb(0, 255, 255, 255));
             fillView.setClickable(true);
-            if (getOrientation() == VERTICAL) {
-                fillView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (screenHeight * 1.2)));
+            LayoutParams flp = null;
+            ViewGroup.LayoutParams rlp = getLayoutParams();
+            if (rlp != null) {
+                if (getOrientation() == VERTICAL) {
+                    flp = new LayoutParams(rlp.width, (int) (rlp.height * 1.2));
+                    if (flp.height < 0) {
+                        flp = new LayoutParams(rlp.width, (int) (screenHeight * 1.2));
+                    }
+                } else {
+                    flp = new LayoutParams((int) (rlp.width * 1.2), rlp.height);
+                    if (flp.width < 0) {
+                        flp = new LayoutParams((int) (screenWidth * 1.2), rlp.height);
+                    }
+                }
             } else {
-                fillView.setLayoutParams(new LayoutParams((int) (screenWidth * 1.2), LayoutParams.MATCH_PARENT));
+                if (getOrientation() == VERTICAL) {
+                    flp = new LayoutParams(LayoutParams.MATCH_PARENT, (int) (screenHeight * 1.2));
+                } else {
+                    flp = new LayoutParams((int) (screenWidth * 1.2), LayoutParams.MATCH_PARENT);
+                }
             }
+            fillView.setLayoutParams(flp);
             mLinearLayout.addView(fillView);
         }
 
