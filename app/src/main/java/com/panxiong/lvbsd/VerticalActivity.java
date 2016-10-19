@@ -1,6 +1,7 @@
 package com.panxiong.lvbsd;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.pixel.listview.LinearListView;
 import com.pixel.listview.inter.OnCreateViewInterface;
+import com.pixel.listview.inter.OnSlidRefreshInterface;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class VerticalActivity extends Activity {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
 
     private final List<ItemEntity> listDatas = new ArrayList<>();
+    private volatile int page = 1;
 
     @Override
 
@@ -31,12 +34,14 @@ public class VerticalActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vertical);
 
-        initListData();
+       // initListData();
         initListView();
     }
 
     private void initListData() {
-        for (int i = 0; i < 20; i++) {
+        if (page == 1) listDatas.clear();
+        int index = page * 20;
+        for (int i = page - 20; i < index; i++) {
             listDatas.add(new ItemEntity(R.mipmap.ic_launcher, "列表第 " + (i + 1) + " 行", System.currentTimeMillis()));
         }
     }
@@ -60,6 +65,35 @@ public class VerticalActivity extends Activity {
                 viewHolder.userName.setText(listDatas.get(position).userName);
                 viewHolder.dateTime.setText(sdf.format(new Date(listDatas.get(position).dateTime)));
                 return convertView;
+            }
+        });
+        mLinearListView.setIsOpenRefresh(true);
+        mLinearListView.setIsOpenMore(true);
+        mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
+            @Override
+            public void doRefresh(Context mContext, LinearListView linearListView) {
+                page = 1;
+                initListData();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLinearListView.closeRefreshView();
+                        mLinearListView.refreshUiData();
+                    }
+                }, 2000);
+            }
+
+            @Override
+            public void doMore(Context mContext, LinearListView linearListView) {
+                page += 1;
+                initListData();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLinearListView.closeRefreshView();
+                        mLinearListView.refreshUiData();
+                    }
+                }, 2000);
             }
         });
     }
@@ -114,7 +148,7 @@ public class VerticalActivity extends Activity {
         mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
             @Override
             public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
-                Toast.makeText(MainActivity.this, "" + direction + position + menuOrder + menuName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(_MainActivity.this, "" + direction + position + menuOrder + menuName, Toast.LENGTH_SHORT).show();
             }
         });
 //        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
@@ -141,20 +175,20 @@ public class VerticalActivity extends Activity {
             @Override
             public void run() {
 //                mLinearListView.refreshUiData();
-//                Toast.makeText(MainActivity.this, "刷新", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(_MainActivity.this, "刷新", Toast.LENGTH_SHORT).show();
             }
         }, 5000);
 
         mLinearListView.setOnItemClickInterface(new OnItemClickInterface() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "onItemClick " + position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(_MainActivity.this, "onItemClick " + position, Toast.LENGTH_SHORT).show();
             }
         });
         mLinearListView.setOnItemLongClickInterface(new OnItemLongClickInterface() {
             @Override
             public boolean onItemLongClick(View view, int position) {
-                Toast.makeText(MainActivity.this, "onItemLongClick " + position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(_MainActivity.this, "onItemLongClick " + position, Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -164,7 +198,7 @@ public class VerticalActivity extends Activity {
         mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
             @Override
             public void doRefresh(Context mContext, LinearListView linearListView) {
-                Log.e("MainActivity", "刷新");
+                Log.e("_MainActivity", "刷新");
 
                 mLinearListView.refreshUiData();
                 new Handler().postDelayed(new Runnable() {
@@ -177,7 +211,7 @@ public class VerticalActivity extends Activity {
 
             @Override
             public void doMore(Context mContext, LinearListView linearListView) {
-                Log.e("MainActivity", "加载");
+                Log.e("_MainActivity", "加载");
 
                 mLinearListView.refreshUiData();
                 new Handler().postDelayed(new Runnable() {

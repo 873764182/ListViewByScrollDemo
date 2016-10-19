@@ -17,7 +17,7 @@ import android.widget.BaseAdapter;
  * 5. Item可以左右或者上下滑动打开相应菜单，每个Item的操作菜单可以不同，滑动菜单可以存在个别item有，个别item没有的情况
  * 6. 上下拉刷新，下刷新，滑动到最后一个Item自动加载更多，加载更多与下拉刷新可以手动关闭这功能
  */
-public class MainActivity extends AppCompatActivity {
+public class _MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

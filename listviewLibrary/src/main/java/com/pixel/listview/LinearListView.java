@@ -744,7 +744,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         }
     }
 
-    // 打开下拉刷新或者上拉加载的情况下 内容不满容器高度/宽度 添加一个空白View填充
+    // 打开下拉刷新或者上拉加载的情况下 内容不满容器高度/宽度 收缩滚动视图达到滑动的目的 (已经不需要 视图空的时候添加一个超过屏幕的View也可以达到滑动的效果)
     private void setRefreshFillView(final boolean isOpen) {
         runOnDelayed(new Runnable() {
             @Override
@@ -753,7 +753,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        LayoutParams layoutParams = (LayoutParams) getLayoutParams();
+                        ViewGroup.LayoutParams layoutParams = getLayoutParams();
                         if (getOrientation() == VERTICAL && mContentHeight <= mRootHeight) {
                             if (isOpen) {
                                 layoutParams.height = mContentHeight - SLIDO_OFFSET;
@@ -839,9 +839,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             fillView.setBackgroundColor(Color.argb(0, 255, 255, 255));
             fillView.setClickable(true);
             if (getOrientation() == VERTICAL) {
-                fillView.setLayoutParams(new LayoutParams(mRootWidth <= 0 ? screenWidth : mRootWidth, screenHeight / 3));
+                fillView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, (int) (screenHeight * 1.2)));
             } else {
-                fillView.setLayoutParams(new LayoutParams(screenWidth / 2, mRootHeight <= 0 ? screenHeight : mRootHeight));
+                fillView.setLayoutParams(new LayoutParams((int) (screenWidth * 1.2), LayoutParams.MATCH_PARENT));
             }
             mLinearLayout.addView(fillView);
         }
@@ -916,7 +916,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      * 是否开启下拉刷新 默认关闭
      */
     public void setIsOpenRefresh(boolean isOpenRefresh) {
-        setRefreshFillView(isOpenRefresh);
+        // setRefreshFillView(isOpenRefresh);
         this.isOpenRefresh = isOpenRefresh;
     }
 
@@ -924,7 +924,7 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
      * 是否开启上拉加载更多 默认关闭
      */
     public void setIsOpenMore(boolean isOpenMore) {
-        setRefreshFillView(isOpenMore);
+        // setRefreshFillView(isOpenMore);
         this.isOpenMore = isOpenMore;
     }
 
