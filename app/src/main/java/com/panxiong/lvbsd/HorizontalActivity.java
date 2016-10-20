@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.pixel.listview.LinearListView;
+import com.pixel.listview.inter.OnCreateSlidMenuClickInterface;
+import com.pixel.listview.inter.OnCreateSlidMenuLeftInterface;
+import com.pixel.listview.inter.OnCreateSlidMenuRightInterface;
 import com.pixel.listview.inter.OnCreateViewInterface;
 
 import java.util.ArrayList;
@@ -67,6 +72,40 @@ public class HorizontalActivity extends Activity {
                 return convertView;
             }
         });
+        mLinearListView.setLeftSlidOpen(true);
+        mLinearListView.setLeftSlidMenu(0, "顶部菜单");
+        mLinearListView.setLeftSlidMenu(2, "顶部菜单");
+        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
+            @Override
+            public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+                View slidMenu = inflater.inflate(R.layout.menu_slid_button_h, null);
+                TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_h);
+                textView.setText(menuName);
+                return slidMenu;
+            }
+        });
+        mLinearListView.setRightSlidOpen(true);
+        mLinearListView.setRightSlidMenu(0, "底部菜单");
+        mLinearListView.setRightSlidMenu(1, "底部菜单");
+        mLinearListView.setOnCreateSlidMenuRightInterface(new OnCreateSlidMenuRightInterface() {
+            @Override
+            public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+                View slidMenu = inflater.inflate(R.layout.menu_slid_button_h, null);
+                TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_h);
+                textView.setText(menuName);
+                return slidMenu;
+            }
+        });
+        mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
+            @Override
+            public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
+                showToast("方向(0.左,1.右): " + direction + "\n按钮下标: " + position + "\n按钮名称: " + menuName);
+            }
+        });
+    }
+
+    private void showToast(String msg) {
+        Toast.makeText(this, msg + "", Toast.LENGTH_SHORT).show();
     }
 
     static class ItemEntity {

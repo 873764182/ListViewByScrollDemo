@@ -2,12 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="#FF3B30"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <ImageView
+    <!--固定大小 高与Item宽度一致-->
+    <TextView
+        android:id="@+id/slidMenu_h"
         android:layout_width="140dp"
-        android:layout_height="140dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
-        android:src="@mipmap/bg_head_h" />
+        android:gravity="center"
+        android:text="按钮"
+        android:textColor="#FFFFFF" />
 </LinearLayout>
