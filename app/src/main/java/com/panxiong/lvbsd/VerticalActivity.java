@@ -186,7 +186,7 @@ public class VerticalActivity extends Activity {
         }
         int index = p * 20;
         for (int i = index - 20; i < index; i++) {
-            listDatas.add(new ItemEntity(R.mipmap.ic_launcher, "LinearListView 列表第 " + (i + 1) + " 行", System.currentTimeMillis()));
+            listDatas.add(new ItemEntity(R.mipmap.ic_launcher, "LinearListView ---> 列表第 " + (i + 1) + " 行", System.currentTimeMillis()));
         }
     }
 
