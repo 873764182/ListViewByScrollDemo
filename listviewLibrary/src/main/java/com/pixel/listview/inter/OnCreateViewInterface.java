@@ -1,6 +1,8 @@
 package com.pixel.listview.inter;
 
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 
 /**
  * Created by Administrator on 2016/10/13.
@@ -13,5 +15,5 @@ public interface OnCreateViewInterface {
     int getCount();
 
     // 列表的视图
-    View getView(int position);
+    View getView(LayoutInflater inflater, LinearLayout parentView, int position);
 }

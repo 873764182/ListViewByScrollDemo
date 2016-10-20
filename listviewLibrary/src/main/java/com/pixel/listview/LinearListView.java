@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,8 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
     private final List<View> headerList = new ArrayList<>();
     /*Footer集合*/
     private final List<View> footerList = new ArrayList<>();
+    /*View加载器*/
+    private LayoutInflater layoutInflater;
 
     /*创建View的回调*/
     private OnCreateViewInterface onCreateViewInterface;
@@ -750,6 +753,8 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             mHScrollView.setOnTouchListener(this);
             mHScrollView.setHorizontalScrollBarEnabled(false);
         }
+
+        this.layoutInflater = LayoutInflater.from(mContext);
     }
 
     // 打开下拉刷新或者上拉加载的情况下 内容不满容器高度/宽度 收缩滚动视图达到滑动的目的 (已经不需要 视图空的时候添加一个超过屏幕的View也可以达到滑动的效果)
@@ -836,13 +841,17 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         mViews.clear();
         if (onCreateViewInterface != null) {
             mListSize = onCreateViewInterface.getCount();
+            for (int position = 0; (position < mListSize && position < maxItem); position++) {
+                mViews.add(onCreateViewInterface.getView(layoutInflater, mLinearLayout, position));
+                mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
+            }
         }
-        for (int position = 0; (position < mListSize && position < maxItem); position++) {
-            mViews.add(onCreateViewInterface.getView(position));
-            mLinearLayout.addView(viewSlidPackag(mViews.get(position), position));
+        // 添加Footer
+        for (View footerView : footerList) {
+            mLinearLayout.addView(footerView);
         }
         // 处理打开滑动刷新但是列表为空的时
-        if ((isOpenRefresh || isOpenMore) && mViews.size() <= 0) {
+        if ((isOpenRefresh || isOpenMore) && (mViews.size() <= 0 && footerList.size() <= 0 && headerList.size() <= 0)) {    //
             View fillView = new View(mContext);
             fillView.setBackgroundColor(Color.argb(0, 255, 255, 255));
             fillView.setClickable(true);
@@ -869,11 +878,6 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
             }
             fillView.setLayoutParams(flp);
             mLinearLayout.addView(fillView);
-        }
-
-        // 添加Footer
-        for (View footerView : footerList) {
-            mLinearLayout.addView(footerView);
         }
         mLinearLayout.invalidate();
 
@@ -914,22 +918,37 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 mContentWidth = mLinearLayout.getWidth();
                 mContentHeight = mLinearLayout.getHeight();
 
-                // 设置根视图内容与内容视图一样大
-                if (mContentWidth <= mRootWidth || mContentHeight <= mRootHeight) {
+                // 设置根视图内容与内容视图一样大 打开刷新状态下 缩小视图 以创建达到滑动刷新的条件
+                if (mContentWidth < mRootWidth || mContentHeight < mRootHeight) {
                     ViewGroup.LayoutParams layoutParams = getLayoutParams();
                     if (layoutParams.width == LayoutParams.WRAP_CONTENT) {
                         if (isOpenRefresh || isOpenMore) {
-                            layoutParams.width = mContentWidth - SLIDO_OFFSET;
+//                            layoutParams.width = mContentWidth - SLIDO_OFFSET;
+                            layoutParams.width = mRootWidth - SLIDO_OFFSET;
                         } else {
-                            layoutParams.width = mContentWidth;
+//                            layoutParams.width = mContentWidth;
+                            layoutParams.width = mRootWidth;
                         }
                     }
                     if (layoutParams.height == LayoutParams.WRAP_CONTENT) {
                         if (isOpenRefresh || isOpenMore) {
-                            layoutParams.height = mContentHeight - SLIDO_OFFSET;
+//                            layoutParams.height = mContentHeight - SLIDO_OFFSET;
+                            layoutParams.height = mRootHeight - SLIDO_OFFSET;
                         } else {
-                            layoutParams.height = mContentHeight;
+//                            layoutParams.height = mContentHeight;
+                            layoutParams.height = mRootHeight;
                         }
+                    }
+                    setLayoutParams(layoutParams);
+                } else if (mContentWidth > mRootWidth || mContentHeight > mRootHeight) {
+                    ViewGroup.LayoutParams layoutParams = getLayoutParams();
+                    if (layoutParams.width == LayoutParams.WRAP_CONTENT) {
+//                        layoutParams.width = screenWidth;
+                        layoutParams.width = mRootWidth;
+                    }
+                    if (layoutParams.height == LayoutParams.WRAP_CONTENT) {
+//                        layoutParams.height = screenHeight;
+                        layoutParams.height = mRootHeight;
                     }
                     setLayoutParams(layoutParams);
                 }
