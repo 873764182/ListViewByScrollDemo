@@ -2,8 +2,6 @@
 
 ![image](projectImage/readme.gif)
 
-# 源文件projectImage/readme.json
-
 ![image](projectImage/readme.jpg)
 
-# 项目持续更新中 BUG反馈 邮箱 873764182@qq.com
+项目持续更新中 BUG反馈 邮箱 873764182@qq.com
