@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#FF9C00"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <!--固定大小 高与Item高度一致-->
+    <TextView
+        android:id="@+id/slidMenu_y"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="按钮"
+        android:textColor="#FFFFFF" />
+</LinearLayout>

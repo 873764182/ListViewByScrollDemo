@@ -174,13 +174,14 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         LinearLayout linearLayout = new LinearLayout(mContext);
         linearLayout.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
         linearLayout.setOrientation(HORIZONTAL);
+        linearLayout.setGravity(Gravity.CENTER);
         linearLayout.setBackgroundColor(Color.argb(200, 238, 238, 238));
         for (int menuOrder = 0; menuOrder < menus.length; menuOrder++) { // 滑动按钮的样式可以在这里定义
             View slidMenu = null;
             if (direction == 1 && onCreateSlidMenuRightInterface != null) {
-                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(layoutInflater, linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else if (direction == 0 && onCreateSlidMenuLeftInterface != null) {
-                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(layoutInflater, linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else {
                 TextView textView = new TextView(mContext);
                 textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -200,7 +201,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     }
                 });
             }
-            if (slidMenu != null) linearLayout.addView(slidMenu);
+            if (slidMenu != null) {
+                linearLayout.addView(slidMenu);
+            }
         }
         return linearLayout;
     }
@@ -214,9 +217,9 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
         for (int menuOrder = 0; menuOrder < menus.length; menuOrder++) { // 滑动按钮的样式可以在这里定义
             View slidMenu = null;
             if (direction == 1 && onCreateSlidMenuRightInterface != null) {
-                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuRightInterface.getSlidMenuItem(layoutInflater, linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else if (direction == 0 && onCreateSlidMenuLeftInterface != null) {
-                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
+                slidMenu = onCreateSlidMenuLeftInterface.getSlidMenuItem(layoutInflater, linearLayout, position, menus.length, menuOrder, menus[menuOrder]);
             } else {
                 TextView textView = new TextView(mContext);
                 textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));

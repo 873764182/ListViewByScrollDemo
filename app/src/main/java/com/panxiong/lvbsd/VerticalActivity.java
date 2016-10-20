@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import com.pixel.listview.LinearListView;
 import com.pixel.listview.inter.OnCreateSlidMenuClickInterface;
+import com.pixel.listview.inter.OnCreateSlidMenuLeftInterface;
+import com.pixel.listview.inter.OnCreateSlidMenuRightInterface;
 import com.pixel.listview.inter.OnCreateViewInterface;
 import com.pixel.listview.inter.OnItemClickInterface;
 import com.pixel.listview.inter.OnItemLongClickInterface;
@@ -146,13 +149,27 @@ public class VerticalActivity extends Activity {
             }
         });
         mLinearListView.setLeftSlidMenu(1, "企鹅", "微信"); // 单个设置列表Item左边菜单 这个方法必须在setLeftSlidMenu之后调用
-        // 自定义列表Item的左边滑动按钮样式
-//        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
-//            @Override
-//            public View getSlidMenuItem(View containerView, int position, int menuSize, int menuOrder, String menuName) {
-//                return null;
-//            }
-//        });
+        // 自定义列表Item的左边滑动按钮样式 按钮View的大小必须固定大小(和列表Item一样高) 不然有可能显示异常
+        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
+            @Override
+            public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+                View slidMenu = null;
+                if (menuOrder == 0) {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_red, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_r);
+                    textView.setText(menuName);
+                } else if (menuOrder == 1) {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_yellow, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_y);
+                    textView.setText(menuName);
+                } else {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_grey, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_g);
+                    textView.setText(menuName);
+                }
+                return slidMenu;
+            }
+        });
         // 打开列表Item右边的滑动菜单 默认是关闭的
         mLinearListView.setRightSlidOpen(true);
         mLinearListView.setRightSlidMenu(new Hashtable<Integer, String[]>() {    // 同时设定多个
@@ -162,14 +179,28 @@ public class VerticalActivity extends Activity {
                 put(6, new String[]{"今日头条", "简书"});
             }
         });
-        mLinearListView.setRightSlidMenu(1, "CF", "LOL"); // 单个设置列表Item右边菜单 这个方法必须在setRightSlidMenu之后调用
-        // 自定义列表Item的右边滑动按钮样式
-//        mLinearListView.setOnCreateSlidMenuRightInterface(new OnCreateSlidMenuRightInterface() {
-//            @Override
-//            public View getSlidMenuItem(View containerView, int position, int menuSize, int menuOrder, String menuName) {
-//                return null;
-//            }
-//        });
+        mLinearListView.setRightSlidMenu(1, "CF", "LOL", "删除"); // 单个设置列表Item右边菜单 这个方法必须在setRightSlidMenu之后调用
+        // 自定义列表Item的右边滑动按钮样式 按钮View的大小必须固定大小(和列表Item一样高) 不然有可能显示异常
+        mLinearListView.setOnCreateSlidMenuRightInterface(new OnCreateSlidMenuRightInterface() {
+            @Override
+            public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+                View slidMenu = null;
+                if (menuOrder == 0) {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_grey, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_g);
+                    textView.setText(menuName);
+                } else if (menuOrder == 1) {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_yellow, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_y);
+                    textView.setText(menuName);
+                } else {
+                    slidMenu = inflater.inflate(R.layout.menu_slid_button_red, null);
+                    TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_r);
+                    textView.setText(menuName);
+                }
+                return slidMenu;
+            }
+        });
         // 监听列表Item滑动按钮点击
         mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
             @Override
