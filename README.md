@@ -1,0 +1,183 @@
+# ListViewByScrollDemo
+基于LinearLayout实现的ListView,支持竖直方向与水平方向显示,不存在回收问题.集成下拉刷新,上拉加载,滑动删除菜单.
+
+开始使用 
+
+1.在ListViewByScrollDemo/listviewLibrary/outputJar/目录下找到pixel-linear-listview.jar文件,导入自己的项目的libs目录下.
+
+2.在布局文件里加入
+<com.pixel.listview.LinearListView
+        android:id="@+id/vLinearListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+        
+3.获取布局文件里声明的控件
+mLinearListView = (LinearListView) findViewById(R.id.vLinearListView);
+
+4.限制列表最大行数 (如果没有遇到OOM 不推荐限制)
+mLinearListView.setMaxItem(10000);
+
+5.设置列表数据
+mLinearListView.setOnCreateViewInterface(new OnCreateViewInterface() {
+    @Override
+    public int getCount() {
+        return listDatas.size();    // 返回列表行数
+    }
+
+    // 返回列表Item View 因为列表不会被回收 所以不用考虑重用问题 但调用refreshUiData时还是会重新生成 建议用一个List来保存View
+    @Override
+    public View getView(LayoutInflater inflater, LinearLayout parentView, int position) {
+        View convertView = listViews.get(position);
+        ViewHolder viewHolder = null;
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.item_view_v, parentView, false);
+            viewHolder = new ViewHolder();
+            viewHolder.headUri = (ImageView) convertView.findViewById(R.id.headUri);
+            viewHolder.userName = (TextView) convertView.findViewById(R.id.userName);
+            viewHolder.dateTime = (TextView) convertView.findViewById(R.id.dateTime);
+            convertView.setTag(viewHolder);
+            listViews.put(position, convertView);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+        // View可以被缓存 但数据必须要更新
+        viewHolder.headUri.setImageDrawable(ContextCompat.getDrawable(VerticalActivity.this, R.mipmap.ic_launcher));
+        viewHolder.userName.setText(listDatas.get(position).userName);
+        viewHolder.dateTime.setText(sdf.format(new Date(listDatas.get(position).dateTime)));
+        return convertView;
+    }
+});
+
+6.经过以上配置后列表就可以显示了.需要下拉刷新/上拉加载的情况加入以下配置
+// 打开下拉刷新
+mLinearListView.setIsOpenRefresh(true);
+// 打开上拉加载
+mLinearListView.setIsOpenMore(true);
+// 监听上/下拉刷新事件 刷新结束后使用mLinearListView.closeRefreshView();关闭刷新状态
+mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
+    @Override
+    public void doRefresh(Context mContext, LinearListView linearListView) {    
+         // 下拉刷新回调
+    }
+
+    @Override
+    public void doMore(Context mContext, LinearListView linearListView) {   
+         // 上拉加载回调
+    }
+});
+// 默认的下拉刷新头部视图与默认的上拉加载视图不符合项目视图要求 可以自己定制一个 可以参考 ListViewByScrollDemo/listviewLibrary/src/main/java/com/pixel/listview/widget/ 目录下的 SlidFootRefreshView.java/SlidHeadRefreshView.java
+// mLinearListView.setiSlidHeadRefreshView();    // 自定义下拉刷新的头部与触发刷新事件
+// mLinearListView.setISlidFootRefreshView();    // 自定义上拉加载的尾部与触发加载条件
+
+7.监听列表itemview的点击事件
+// 设置列表Item单击事件
+mLinearListView.setOnItemClickInterface(new OnItemClickInterface() {
+    @Override
+    public void onItemClick(View view, int position) {
+        showToast("单击了列表第 " + position + " 行");
+    }
+});
+// 设置列表Item长按事件
+mLinearListView.setOnItemLongClickInterface(new OnItemLongClickInterface() {
+    @Override
+    public boolean onItemLongClick(View view, int position) {
+        showToast("长按了列表第 " + position + " 行");
+        return true;
+    }
+});
+
+8.需要列表Item滑动菜单的(如滑动删除),可以添加以下配置
+// 打开列表Item左边的滑动菜单 默认是关闭的
+mLinearListView.setLeftSlidOpen(true);
+mLinearListView.setLeftSlidMenu(new Hashtable<Integer, String[]>() {    // 同时设定多个
+    {
+        put(2, new String[]{"百度", "360"});
+        put(3, new String[]{"网易", "淘宝"});
+        put(4, new String[]{"天猫"});
+    }
+});
+// mLinearListView.setLeftSlidMenu(1, "企鹅", "微信"); // 作用与setLeftSlidMenu相同 这里是单个设置列表Item左边菜单 这个方法必须在setLeftSlidMenu之后调用
+
+// 如果默认的滑动菜单样式不符合项目视图要求 可以使用如下方式自定义
+
+// 自定义列表Item的左边滑动按钮样式 按钮View的大小必须固定大小(和列表Item一样高) 不然有可能显示异常
+mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
+    @Override
+    public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+        View slidMenu = null;
+        if (menuOrder == 0) {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_red, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_r);
+            textView.setText(menuName);
+        } else if (menuOrder == 1) {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_yellow, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_y);
+            textView.setText(menuName);
+        } else {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_grey, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_g);
+            textView.setText(menuName);
+        }
+        return slidMenu;
+    }
+});
+
+右边的滑动菜单使用方式跟左边的类似
+// 打开列表Item右边的滑动菜单 默认是关闭的
+mLinearListView.setRightSlidOpen(true);
+mLinearListView.setRightSlidMenu(new Hashtable<Integer, String[]>() {    // 同时设定多个
+    {
+        put(4, new String[]{"京东"});
+        put(5, new String[]{"支付宝"});
+        put(6, new String[]{"今日头条", "简书"});
+    }
+});
+mLinearListView.setRightSlidMenu(1, "CF", "LOL", "删除"); // 作用与setRightSlidMenu相同 这里是单个设置列表Item右边菜单 这个方法必须在setRightSlidMenu之后调用
+// 自定义列表Item的右边滑动按钮样式 按钮View的大小必须固定大小(和列表Item一样高) 不然有可能显示异常
+mLinearListView.setOnCreateSlidMenuRightInterface(new OnCreateSlidMenuRightInterface() {
+    @Override
+    public View getSlidMenuItem(LayoutInflater inflater, ViewGroup containerView, int position, int menuSize, int menuOrder, String menuName) {
+        View slidMenu = null;
+        if (menuOrder == 0) {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_grey, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_g);
+            textView.setText(menuName);
+        } else if (menuOrder == 1) {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_yellow, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_y);
+            textView.setText(menuName);
+        } else {
+            slidMenu = inflater.inflate(R.layout.menu_slid_button_red, null);
+            TextView textView = (TextView) slidMenu.findViewById(R.id.slidMenu_r);
+            textView.setText(menuName);
+        }
+        return slidMenu;
+    }
+});
+
+// 监听列表Itemview滑动按钮点击
+mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
+    @Override
+    public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
+        showToast("方向(0.左,1.右): " + direction + "\n按钮下标: " + position + "\n按钮名称: " + menuName);
+    }
+});
+
+9.列表是支持横向显示的,如果需要把列表调整为横向显示的 请修改布局文件里的 orientation="horizontal" 即可.最好固定一下高度.
+// 横向显示的view与竖向显示的view的要求不一样,请重新创建符合横向显示的itenview.如果列表有滑动菜单,左边的滑动菜单会变为顶部的滑动菜单,右边的滑动菜单会变为底部的滑动菜单.其他用法跟竖向的列表没什么差别.
+<com.pixel.listview.LinearListView
+        android:id="@+id/linearListView"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:orientation="horizontal" />
+
+
+
+
+
+
+
+
+
+
