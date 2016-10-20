@@ -10,12 +10,14 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:onClick="toVertical"
         android:text="竖直的列表" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:onClick="toHorizontal"
         android:text="水平的列表" />
 </LinearLayout>

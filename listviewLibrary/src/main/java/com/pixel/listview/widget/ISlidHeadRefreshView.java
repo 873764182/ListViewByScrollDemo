@@ -19,6 +19,11 @@ public abstract class ISlidHeadRefreshView {
     public ISlidHeadRefreshView(LinearListView linearListView) {
     }
 
+    // 返回触发刷新的滑动比例
+    public float getTriggerRefreshValue() {
+        return 2f / 3f;
+    }
+
     // 下拉刷新的滑动的时候
     public void onSliding(int scope, int sliding) {
     }

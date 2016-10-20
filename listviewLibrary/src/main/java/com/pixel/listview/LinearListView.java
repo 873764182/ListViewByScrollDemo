@@ -628,6 +628,13 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                     downY_slid = 0;
                     mSlidView.setVisibility(GONE);
 
+                    // 获取自定义的触发刷新的临界值
+                    if (isRefresh != null && isRefresh && iSlidHeadRefreshView != null) {
+                        triggerRefreshValue = iSlidHeadRefreshView.getTriggerRefreshValue();
+                    } else if (isRefresh != null && !isRefresh && iSlidFootRefreshView != null) {
+                        triggerRefreshValue = iSlidFootRefreshView.getTriggerRefreshValue();
+                    }
+
                     if (!isRefreshState && moveValue >= scope * triggerRefreshValue) {    // 滑动距离超过HeadView的2/3时才触发刷新事件
                         isRefreshState = true;
                         if (!isIntercept && onSlidRefreshInterface != null) {

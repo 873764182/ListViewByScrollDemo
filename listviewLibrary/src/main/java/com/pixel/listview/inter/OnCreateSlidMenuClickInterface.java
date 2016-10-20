@@ -12,7 +12,7 @@ public interface OnCreateSlidMenuClickInterface {
     /**
      * 列表滑动菜单单击回调
      *
-     * @param direction 方向 左/右 按钮
+     * @param direction 方向 左/右 按钮 0 左/上, 1 右/下
      * @param view      菜单View
      * @param position  列表行号
      * @param menuOrder 滑动按钮顺序 从左到右

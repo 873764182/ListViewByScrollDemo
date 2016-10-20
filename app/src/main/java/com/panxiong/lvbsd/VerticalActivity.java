@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pixel.listview.LinearListView;
+import com.pixel.listview.inter.OnCreateSlidMenuClickInterface;
 import com.pixel.listview.inter.OnCreateViewInterface;
 import com.pixel.listview.inter.OnItemClickInterface;
 import com.pixel.listview.inter.OnItemLongClickInterface;
@@ -43,6 +44,12 @@ public class VerticalActivity extends Activity {
         setContentView(R.layout.activity_vertical);
 
         this.initListView();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showToast("请下拉刷新加载列表数据");
+            }
+        }, 2000);
     }
 
     private void initListView() {
@@ -112,6 +119,8 @@ public class VerticalActivity extends Activity {
                 }, 2000);
             }
         });
+//        mLinearListView.setiSlidHeadRefreshView();    // 自定义下拉刷新的头部与触发刷新事件
+//        mLinearListView.setISlidFootRefreshView();    // 自定义上拉加载的尾部与触发加载条件
         // 设置列表Item单击事件
         mLinearListView.setOnItemClickInterface(new OnItemClickInterface() {
             @Override
@@ -125,6 +134,47 @@ public class VerticalActivity extends Activity {
             public boolean onItemLongClick(View view, int position) {
                 showToast("长按了列表第 " + position + " 行");
                 return true;
+            }
+        });
+        // 打开列表Item左边的滑动菜单 默认是关闭的
+        mLinearListView.setLeftSlidOpen(true);
+        mLinearListView.setLeftSlidMenu(new Hashtable<Integer, String[]>() {    // 同时设定多个
+            {
+                put(2, new String[]{"百度", "360"});
+                put(3, new String[]{"网易", "淘宝"});
+                put(4, new String[]{"天猫"});
+            }
+        });
+        mLinearListView.setLeftSlidMenu(1, "企鹅", "微信"); // 单个设置列表Item左边菜单 这个方法必须在setLeftSlidMenu之后调用
+        // 自定义列表Item的左边滑动按钮样式
+//        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
+//            @Override
+//            public View getSlidMenuItem(View containerView, int position, int menuSize, int menuOrder, String menuName) {
+//                return null;
+//            }
+//        });
+        // 打开列表Item右边的滑动菜单 默认是关闭的
+        mLinearListView.setRightSlidOpen(true);
+        mLinearListView.setRightSlidMenu(new Hashtable<Integer, String[]>() {    // 同时设定多个
+            {
+                put(4, new String[]{"京东"});
+                put(5, new String[]{"支付宝"});
+                put(6, new String[]{"今日头条", "简书"});
+            }
+        });
+        mLinearListView.setRightSlidMenu(1, "CF", "LOL"); // 单个设置列表Item右边菜单 这个方法必须在setRightSlidMenu之后调用
+        // 自定义列表Item的右边滑动按钮样式
+//        mLinearListView.setOnCreateSlidMenuRightInterface(new OnCreateSlidMenuRightInterface() {
+//            @Override
+//            public View getSlidMenuItem(View containerView, int position, int menuSize, int menuOrder, String menuName) {
+//                return null;
+//            }
+//        });
+        // 监听列表Item滑动按钮点击
+        mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
+            @Override
+            public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
+                showToast("方向(0.左,1.右): " + direction + "\n按钮下标: " + position + "\n按钮名称: " + menuName);
             }
         });
     }
@@ -182,102 +232,4 @@ public class VerticalActivity extends Activity {
         mLinearListView.removeFooterView(0);
     }
 
-
-    /*
-
-//        mLinearListView.addHeaderView(getLayoutInflater().inflate(R.layout.head_view, null));
-//        mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-
-        mLinearListView.setRightSlidOpen(true);
-        mLinearListView.setRightSlidMenu(new Hashtable<Integer, String[]>() {
-            {
-                put(0, new String[]{"menu1", "menu2", "menu3"});
-                put(1, new String[]{"menu1", "menu3"});
-                put(2, new String[]{"menu1"});
-                put(3, new String[]{"menu1", "menu2"});
-                put(5, new String[]{"menu1", "menu2", "menu3"});
-            }
-        });
-        mLinearListView.setLeftSlidOpen(true);
-        mLinearListView.setLeftSlidMenu(3, "菜单1", "菜单2", "菜单3");
-        mLinearListView.setLeftSlidMenu(4, "菜单");
-        mLinearListView.setOnCreateSlidMenuClickInterface(new OnCreateSlidMenuClickInterface() {
-            @Override
-            public void onMenuClick(int direction, View view, int position, int menuOrder, String menuName) {
-                Toast.makeText(_MainActivity.this, "" + direction + position + menuOrder + menuName, Toast.LENGTH_SHORT).show();
-            }
-        });
-//        mLinearListView.setOnCreateSlidMenuLeftInterface(new OnCreateSlidMenuLeftInterface() {
-//            @Override
-//            public View getSlidMenuItem(View containerView, int position, int menuOrder, String menuName) {
-//                return getLayoutInflater().inflate(R.layout.footer_view, null);
-//            }
-//        });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-//                mLinearListView.addHeaderView(getLayoutInflater().inflate(R.layout.head_view, null));
-//                mLinearListView.addHeaderView(getLayoutInflater().inflate(R.layout.head_view, null));
-//                mLinearListView.addHeaderView(getLayoutInflater().inflate(R.layout.head_view, null));
-//                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-//                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-//                mLinearListView.addFooterView(getLayoutInflater().inflate(R.layout.footer_view, null));
-                //  mLinearListView.refreshUiData();
-            }
-        }, 2000);
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-//                mLinearListView.refreshUiData();
-//                Toast.makeText(_MainActivity.this, "刷新", Toast.LENGTH_SHORT).show();
-            }
-        }, 5000);
-
-        mLinearListView.setOnItemClickInterface(new OnItemClickInterface() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Toast.makeText(_MainActivity.this, "onItemClick " + position, Toast.LENGTH_SHORT).show();
-            }
-        });
-        mLinearListView.setOnItemLongClickInterface(new OnItemLongClickInterface() {
-            @Override
-            public boolean onItemLongClick(View view, int position) {
-                Toast.makeText(_MainActivity.this, "onItemLongClick " + position, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-
-        mLinearListView.setIsOpenRefresh(true);
-        mLinearListView.setIsOpenMore(true);
-        mLinearListView.setOnSlidRefreshInterface(new OnSlidRefreshInterface() {
-            @Override
-            public void doRefresh(Context mContext, LinearListView linearListView) {
-                Log.e("_MainActivity", "刷新");
-
-                mLinearListView.refreshUiData();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLinearListView.closeRefreshView();
-                    }
-                }, 2000);
-            }
-
-            @Override
-            public void doMore(Context mContext, LinearListView linearListView) {
-                Log.e("_MainActivity", "加载");
-
-                mLinearListView.refreshUiData();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mLinearListView.closeRefreshView();
-                    }
-                }, 2000);
-            }
-        });
-    }
-    * */
 }
