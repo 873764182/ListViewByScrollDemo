@@ -34,14 +34,17 @@ public class VerticalActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vertical);
 
-       // initListData();
+        // initListData();
         initListView();
     }
 
-    private void initListData() {
-        if (page == 1) listDatas.clear();
-        int index = page * 20;
-        for (int i = page - 20; i < index; i++) {
+    private void initListData(int p) {
+        if (p <= 1) {
+            p = 1;
+            listDatas.clear();
+        }
+        int index = p * 20;
+        for (int i = index - 20; i < index; i++) {
             listDatas.add(new ItemEntity(R.mipmap.ic_launcher, "列表第 " + (i + 1) + " 行", System.currentTimeMillis()));
         }
     }
@@ -73,7 +76,7 @@ public class VerticalActivity extends Activity {
             @Override
             public void doRefresh(Context mContext, LinearListView linearListView) {
                 page = 1;
-                initListData();
+                initListData(page);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -86,7 +89,7 @@ public class VerticalActivity extends Activity {
             @Override
             public void doMore(Context mContext, LinearListView linearListView) {
                 page += 1;
-                initListData();
+                initListData(page);
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
