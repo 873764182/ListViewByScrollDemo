@@ -58,7 +58,7 @@ public class VerticalActivity extends Activity {
     private void initListView() {
         // 获取布局文件里声明的控件
         mLinearListView = (LinearListView) findViewById(R.id.vLinearListView);
-        // 限制列表最大行数 (不推荐限制)
+        // 限制列表最大行数 (如果没有OOM 不推荐限制)
         // mLinearListView.setMaxItem(10000);
         // 设置列表数据
         mLinearListView.setOnCreateViewInterface(new OnCreateViewInterface() {
