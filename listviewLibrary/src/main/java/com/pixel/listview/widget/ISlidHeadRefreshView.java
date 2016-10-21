@@ -19,9 +19,14 @@ public abstract class ISlidHeadRefreshView {
     public ISlidHeadRefreshView(LinearListView linearListView) {
     }
 
-    // 返回触发刷新的滑动比例
+    // 返回触发刷新的滑动比例 (0 - 1)
     public float getTriggerRefreshValue() {
         return 2f / 3f;
+    }
+
+    // 返回执行刷新时悬停的位置 (0 - 1)
+    public float getHoverRefreshValue() {
+        return 1f / 2f;
     }
 
     // 下拉刷新的滑动的时候

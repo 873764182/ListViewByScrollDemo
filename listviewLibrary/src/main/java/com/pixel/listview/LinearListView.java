@@ -667,16 +667,23 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
 
     // 关闭滑动视图
     private void performRefreshView(Boolean isRefresh, int scope, final int moveValue) {
+        float hoverValue = 0.5f;
         if (getOrientation() == VERTICAL) {
             if (isRefresh == null) {
                 mSLayoutParams.topMargin = 0;
                 mSLayoutParams.bottomMargin = 0;
             } else if (isRefresh) {
-                mSLayoutParams.topMargin = scope / 2;
+                if (iSlidHeadRefreshView != null) {
+                    hoverValue = iSlidHeadRefreshView.getHoverRefreshValue();
+                }
+                mSLayoutParams.topMargin = (int) (scope * hoverValue);
                 mSLayoutParams.bottomMargin = 0;
             } else if (!isRefresh) {
+                if (iSlidFootRefreshView != null) {
+                    hoverValue = iSlidFootRefreshView.getHoverRefreshValue();
+                }
                 mSLayoutParams.topMargin = 0;
-                mSLayoutParams.bottomMargin = scope * 3 / 5;
+                mSLayoutParams.bottomMargin = (int) (scope * hoverValue);
             }
             mScrollView.setLayoutParams(mSLayoutParams);
         } else {
@@ -684,9 +691,15 @@ public class LinearListView extends LinearLayout implements View.OnTouchListener
                 mSLayoutParams.leftMargin = 0;
                 mSLayoutParams.rightMargin = 0;
             } else if (isRefresh) {
+                if (iSlidHeadRefreshView != null) {
+                    hoverValue = iSlidHeadRefreshView.getHoverRefreshValue();
+                }
                 mSLayoutParams.leftMargin = scope / 2;
                 mSLayoutParams.rightMargin = 0;
             } else if (!isRefresh) {
+                if (iSlidFootRefreshView != null) {
+                    hoverValue = iSlidFootRefreshView.getHoverRefreshValue();
+                }
                 mSLayoutParams.leftMargin = 0;
                 mSLayoutParams.rightMargin = scope / 2;
             }

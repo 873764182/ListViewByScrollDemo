@@ -24,6 +24,11 @@ public abstract class ISlidFootRefreshView {
         return 2f / 3f;
     }
 
+    // 返回执行刷新时悬停的位置 (0 - 1)
+    public float getHoverRefreshValue() {
+        return 1f / 2f;
+    }
+
     // 上拉加载的滑动的时候
     public void onSliding(int scope, int sliding) {
     }
